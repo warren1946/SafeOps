@@ -24,10 +24,11 @@ import org.springframework.web.filter.OncePerRequestFilter
 class JwtAuthenticationFilter(private val tokenService: TokenService, private val userPort: UserPort) : OncePerRequestFilter() {
 
     override fun shouldNotFilter(request: HttpServletRequest): Boolean {
-        val path = request.servletPath
-        return path.startsWith("/api/auth/")
+        println("shouldNotFilter: ${request.servletPath}")
+        return request.servletPath.startsWith("/api/auth/")
+
     }
-    
+
     override fun doFilterInternal(request: HttpServletRequest, response: HttpServletResponse, filterChain: FilterChain) {
         val header = request.getHeader("Authorization")
 
