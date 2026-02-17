@@ -1,7 +1,7 @@
 # ============================
 # 1. BUILD STAGE
 # ============================
-FROM gradle:8.7-jdk21 AS build
+FROM gradle:8.15-jdk21 AS build
 WORKDIR /app
 
 # Copy Gradle files first for caching
