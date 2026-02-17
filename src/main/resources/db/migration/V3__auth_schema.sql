@@ -1,0 +1,17 @@
+CREATE TABLE app_user (
+    id BIGSERIAL PRIMARY KEY,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    enabled BOOLEAN NOT NULL DEFAULT TRUE
+);
+
+CREATE TABLE role (
+    id BIGSERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL UNIQUE
+);
+
+CREATE TABLE user_role (
+    user_id BIGINT NOT NULL REFERENCES app_user(id) ON DELETE CASCADE,
+    role_id BIGINT NOT NULL REFERENCES role(id) ON DELETE CASCADE,
+    PRIMARY KEY (user_id, role_id)
+);
