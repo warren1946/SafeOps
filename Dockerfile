@@ -5,7 +5,7 @@ FROM gradle:8.7-jdk21 AS build
 WORKDIR /app
 
 # Copy Gradle files first for caching
-COPY build.gradle.kts settings.gradle.kts gradle.properties ./
+COPY build.gradle.kts settings.gradle.kts ./
 COPY gradle ./gradle
 
 # Download dependencies (cached)
