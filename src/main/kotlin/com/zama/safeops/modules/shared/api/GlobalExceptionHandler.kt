@@ -37,6 +37,18 @@ class GlobalExceptionHandler {
             )
     }
 
+    @ExceptionHandler(IllegalArgumentException::class)
+    fun handleIllegalArgument(ex: IllegalArgumentException) =
+        ResponseEntity
+            .status(HttpStatus.BAD_REQUEST)
+            .body(
+                ErrorResponse(
+                    code = "VALIDATION_002",
+                    message = ex.message ?: "Invalid input",
+                    errors = emptyMap()
+                )
+            )
+
     @ExceptionHandler(UserAlreadyExistsException::class)
     fun handleUserExists(ex: UserAlreadyExistsException) =
         ResponseEntity

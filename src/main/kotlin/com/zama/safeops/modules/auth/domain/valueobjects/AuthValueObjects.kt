@@ -14,12 +14,7 @@ value class UserId(val value: Long)
 value class RoleId(val value: Long)
 
 @JvmInline
-value class Email(val value: String) {
-    init {
-        require(value.isNotBlank()) { "Email cannot be blank" }
-        require(value.contains("@")) { "Email must contain @" }
-    }
-}
+value class Email(val value: String)
 
 @JvmInline
 value class PasswordHash(val value: String) {
