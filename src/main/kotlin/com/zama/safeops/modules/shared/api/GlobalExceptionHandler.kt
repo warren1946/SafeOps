@@ -7,9 +7,7 @@
 
 package com.zama.safeops.modules.shared.api
 
-import com.zama.safeops.modules.auth.application.exceptions.InvalidCredentialsException
-import com.zama.safeops.modules.auth.application.exceptions.NotFoundException
-import com.zama.safeops.modules.auth.application.exceptions.UserAlreadyExistsException
+import com.zama.safeops.modules.auth.application.exceptions.*
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.MethodArgumentNotValidException
@@ -69,6 +67,30 @@ class GlobalExceptionHandler {
                 ErrorResponse(
                     code = "AUTH_002",
                     message = ex.message ?: "Invalid email or password",
+                    errors = emptyMap()
+                )
+            )
+
+    @ExceptionHandler(InvalidTokenException::class)
+    fun handleInvalidToken(ex: InvalidTokenException) =
+        ResponseEntity
+            .status(HttpStatus.UNAUTHORIZED)
+            .body(
+                ErrorResponse(
+                    code = "AUTH_003",
+                    message = ex.message ?: "Invalid token",
+                    errors = emptyMap()
+                )
+            )
+
+    @ExceptionHandler(ExpiredTokenException::class)
+    fun handleExpiredToken(ex: ExpiredTokenException) =
+        ResponseEntity
+            .status(HttpStatus.UNAUTHORIZED)
+            .body(
+                ErrorResponse(
+                    code = "AUTH_004",
+                    message = ex.message ?: "Token has expired",
                     errors = emptyMap()
                 )
             )
