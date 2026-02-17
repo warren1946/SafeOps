@@ -13,7 +13,10 @@ import com.zama.safeops.modules.auth.application.ports.RolePort
 import com.zama.safeops.modules.auth.application.ports.UserPort
 import com.zama.safeops.modules.auth.domain.model.Role
 import com.zama.safeops.modules.auth.domain.model.User
-import com.zama.safeops.modules.auth.domain.valueobjects.*
+import com.zama.safeops.modules.auth.domain.valueobjects.Email
+import com.zama.safeops.modules.auth.domain.valueobjects.PasswordHash
+import com.zama.safeops.modules.auth.domain.valueobjects.RoleName
+import com.zama.safeops.modules.auth.domain.valueobjects.UserId
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -34,7 +37,7 @@ class UserService(
         val roles: Set<Role> = roleNames.map { name ->
             val roleName = RoleName(name)
             rolePort.findByName(roleName)
-                ?: rolePort.save(Role(RoleId(1), roleName))
+                ?: rolePort.save(Role(id = null, name = roleName))
         }.toSet()
 
         val user = User(

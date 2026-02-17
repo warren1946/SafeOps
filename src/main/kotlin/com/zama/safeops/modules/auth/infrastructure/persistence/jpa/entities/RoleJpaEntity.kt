@@ -35,9 +35,17 @@ class RoleJpaEntity(
 
     companion object {
         fun fromDomain(role: Role): RoleJpaEntity =
-            RoleJpaEntity(
-                id = role.id?.value,
-                name = role.name.value
-            )
+            if (role.id == null) {
+                // new role → let DB generate ID
+                RoleJpaEntity(
+                    name = role.name.value
+                )
+            } else {
+                // existing role → map with ID
+                RoleJpaEntity(
+                    id = role.id.value,
+                    name = role.name.value
+                )
+            }
     }
 }
