@@ -9,6 +9,7 @@ package com.zama.safeops.modules.shared.api
 
 data class ErrorResponse(
     val success: Boolean = false,
+    val code: String,                 // e.g., AUTH_001, CORE_003
     val message: String,
-    val errors: Map<String, String>
+    val errors: Map<String, String> = emptyMap()
 )

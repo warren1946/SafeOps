@@ -7,8 +7,12 @@
 
 package com.zama.safeops.modules.shared.api
 
-data class ApiResponse<T>(
+data class PagedResponse<T>(
     val success: Boolean = true,
-    val message: String,
-    val data: T? = null
+    val message: String = "OK",
+    val data: List<T>,
+    val page: Int,
+    val size: Int,
+    val total: Long,
+    val totalPages: Int
 )

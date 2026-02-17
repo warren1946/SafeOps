@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 @RestControllerAdvice
 class GlobalExceptionHandler {
 
-    // Validation errors (DTO @Valid failures)
+    // Validation errors
     @ExceptionHandler(MethodArgumentNotValidException::class)
     fun handleValidation(ex: MethodArgumentNotValidException): ResponseEntity<ErrorResponse> {
 
@@ -30,45 +30,43 @@ class GlobalExceptionHandler {
             .status(HttpStatus.BAD_REQUEST)
             .body(
                 ErrorResponse(
+                    code = "VALIDATION_001",
                     message = "Validation failed",
                     errors = errors
                 )
             )
     }
 
-    // User already exists
     @ExceptionHandler(UserAlreadyExistsException::class)
     fun handleUserExists(ex: UserAlreadyExistsException) =
         ResponseEntity
             .status(HttpStatus.CONFLICT)
             .body(
                 ErrorResponse(
-                    message = ex.message ?: "User already exists",
-                    errors = emptyMap()
+                    code = "AUTH_001",
+                    message = ex.message ?: "User already exists"
                 )
             )
 
-    // Not found
     @ExceptionHandler(NotFoundException::class)
     fun handleNotFound(ex: NotFoundException) =
         ResponseEntity
             .status(HttpStatus.NOT_FOUND)
             .body(
                 ErrorResponse(
-                    message = ex.message ?: "Resource not found",
-                    errors = emptyMap()
+                    code = "CORE_404",
+                    message = ex.message ?: "Resource not found"
                 )
             )
 
-    // Catch-all fallback
     @ExceptionHandler(Exception::class)
     fun handleGeneric(ex: Exception) =
         ResponseEntity
             .status(HttpStatus.INTERNAL_SERVER_ERROR)
             .body(
                 ErrorResponse(
-                    message = "Internal server error",
-                    errors = emptyMap()
+                    code = "GENERIC_500",
+                    message = "Internal server error"
                 )
             )
 }
