@@ -5,10 +5,18 @@
  * No warranty provided.
  */
 
-package com.zama.safeops.modules.core.infrastructure.persistence
+package com.zama.safeops.modules.core.infrastructure.persistence.jpa.entities
 
-import com.zama.safeops.modules.core.domain.*
-import jakarta.persistence.*
+import com.zama.safeops.modules.core.domain.model.Mine
+import com.zama.safeops.modules.core.domain.valueobjects.MineCode
+import com.zama.safeops.modules.core.domain.valueobjects.MineId
+import com.zama.safeops.modules.core.domain.valueobjects.MineName
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
+import jakarta.persistence.Table
 
 @Entity
 @Table(name = "mine")

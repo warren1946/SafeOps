@@ -5,9 +5,12 @@
  * No warranty provided.
  */
 
-package com.zama.safeops.modules.core.infrastructure.persistence
+package com.zama.safeops.modules.core.infrastructure.persistence.jpa.entities
 
-import com.zama.safeops.modules.core.domain.*
+import com.zama.safeops.modules.core.domain.model.Area
+import com.zama.safeops.modules.core.domain.valueobjects.AreaId
+import com.zama.safeops.modules.core.domain.valueobjects.AreaName
+import com.zama.safeops.modules.core.domain.valueobjects.ShaftId
 import jakarta.persistence.*
 
 @Entity

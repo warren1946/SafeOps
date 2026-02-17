@@ -5,7 +5,7 @@
  * No warranty provided.
  */
 
-package com.zama.safeops.modules.core.domain
+package com.zama.safeops.modules.core.domain.valueobjects
 
 @JvmInline
 value class MineId(val value: Long) {

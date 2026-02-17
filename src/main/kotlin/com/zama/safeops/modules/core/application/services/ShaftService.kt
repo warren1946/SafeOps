@@ -1,0 +1,39 @@
+/*
+ * Copyright (c) 2026 WH Mtawu.
+ * Open Source under the MIT License.
+ * Permission granted for use, modification, and distribution with attribution.
+ * No warranty provided.
+ */
+
+package com.zama.safeops.modules.core.application.services
+
+import com.zama.safeops.modules.core.application.exceptions.NotFoundException
+import com.zama.safeops.modules.core.application.ports.ShaftPort
+import com.zama.safeops.modules.core.domain.model.Shaft
+import com.zama.safeops.modules.core.domain.valueobjects.*
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+
+@Service
+class ShaftService(
+    private val shaftPort: ShaftPort
+) {
+
+    @Transactional
+    fun createShaft(name: String, siteId: Long): Shaft {
+        val siteIdVo = SiteId(siteId)
+        if (!shaftPort.existsSite(siteIdVo)) {
+            throw NotFoundException("Site $siteId not found")
+        }
+
+        val shaft = Shaft(
+            id = ShaftId(1),
+            name = ShaftName(name),
+            siteId = siteIdVo
+        )
+        return shaftPort.save(shaft)
+    }
+
+    @Transactional(readOnly = true)
+    fun listShafts(): List<Shaft> = shaftPort.findAll()
+}
