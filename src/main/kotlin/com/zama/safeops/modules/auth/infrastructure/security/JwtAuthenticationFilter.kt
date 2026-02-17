@@ -57,11 +57,13 @@ class JwtAuthenticationFilter(private val tokenService: TokenService, private va
             if (user != null && SecurityContextHolder.getContext().authentication == null) {
                 val authorities = user.roles.map { SimpleGrantedAuthority(it.name.value) }
 
-                val auth = UsernamePasswordAuthenticationToken(
-                    user.id.value,
-                    null,
-                    authorities
-                )
+                val auth = user.id?.let {
+                    UsernamePasswordAuthenticationToken(
+                        it.value,
+                        null,
+                        authorities
+                    )
+                }
 
                 SecurityContextHolder.getContext().authentication = auth
             }

@@ -23,9 +23,9 @@ class UserController(
 
     @GetMapping
     fun list(): List<UserResponse> =
-        userService.listUsers().map { it.toResponse() }
+        userService.listUsers().map { it.toResponse() as UserResponse }
 
     @GetMapping("/{id}")
     fun get(@PathVariable id: Long): UserResponse =
-        userService.getUser(id).toResponse()
+        userService.getUser(id).toResponse()!!
 }

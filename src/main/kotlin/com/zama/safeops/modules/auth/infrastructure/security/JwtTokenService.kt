@@ -30,7 +30,7 @@ class JwtTokenService(
         val key = Keys.hmacShaKeyFor(accessSecret.toByteArray())
 
         return Jwts.builder()
-            .setSubject(user.id.value.toString())
+            .setSubject(user.id?.value.toString())
             .claim("email", user.email.value)
             .claim("roles", user.roles.map { it.name.value })
             .setIssuedAt(now)
@@ -45,7 +45,7 @@ class JwtTokenService(
         val key = Keys.hmacShaKeyFor(refreshSecret.toByteArray())
 
         return Jwts.builder()
-            .setSubject(user.id.value.toString())
+            .setSubject(user.id?.value.toString())
             .setIssuedAt(now)
             .setExpiration(expiry)
             .signWith(key, SignatureAlgorithm.HS256)
