@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2026 WH Mtawu.
+ * Open Source under the MIT License.
+ * Permission granted for use, modification, and distribution with attribution.
+ * No warranty provided.
+ */
+
 package com.zama.safeops.config
 
 import org.springframework.context.annotation.Bean
@@ -16,6 +23,7 @@ class SecurityConfig {
             .authorizeHttpRequests { auth ->
                 auth
                     .requestMatchers("/health").permitAll()
+                    .requestMatchers("/api/core/**").permitAll() // temporarily open for testing
                     .anyRequest().authenticated()
             }
             .httpBasic(Customizer.withDefaults())
