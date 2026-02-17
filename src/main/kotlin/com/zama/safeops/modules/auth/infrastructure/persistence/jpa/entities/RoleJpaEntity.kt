@@ -36,7 +36,7 @@ class RoleJpaEntity(
     companion object {
         fun fromDomain(role: Role): RoleJpaEntity =
             RoleJpaEntity(
-                id = role.id.value,
+                id = role.id?.value,
                 name = role.name.value
             )
     }

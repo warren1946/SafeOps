@@ -8,18 +8,10 @@
 package com.zama.safeops.modules.auth.domain.valueobjects
 
 @JvmInline
-value class UserId(val value: Long) {
-    init {
-        require(value > 0)
-    }
-}
+value class UserId(val value: Long)
 
 @JvmInline
-value class RoleId(val value: Long) {
-    init {
-        require(value > 0)
-    }
-}
+value class RoleId(val value: Long)
 
 @JvmInline
 value class Email(val value: String) {
@@ -37,8 +29,4 @@ value class PasswordHash(val value: String) {
 }
 
 @JvmInline
-value class RoleName(val value: String) {
-    init {
-        require(value.isNotBlank()) { "Role name cannot be blank" }
-    }
-}
+value class RoleName(val value: String)

@@ -38,7 +38,7 @@ class UserService(
         }.toSet()
 
         val user = User(
-            id = UserId(1),
+            id = null,
             email = emailVo,
             password = PasswordHash(passwordEncoder.encode(rawPassword)),
             enabled = true,

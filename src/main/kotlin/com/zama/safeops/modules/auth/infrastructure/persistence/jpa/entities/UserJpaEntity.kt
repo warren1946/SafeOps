@@ -54,7 +54,7 @@ class UserJpaEntity(
     companion object {
         fun fromDomain(user: User): UserJpaEntity =
             UserJpaEntity(
-                id = user.id.value,
+                id = user.id?.value,
                 email = user.email.value,
                 passwordHash = user.password.value,
                 enabled = user.enabled,
