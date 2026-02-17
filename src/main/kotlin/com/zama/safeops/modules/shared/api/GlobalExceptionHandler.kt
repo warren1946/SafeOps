@@ -7,6 +7,7 @@
 
 package com.zama.safeops.modules.shared.api
 
+import com.zama.safeops.modules.auth.application.exceptions.InvalidCredentialsException
 import com.zama.safeops.modules.auth.application.exceptions.NotFoundException
 import com.zama.safeops.modules.auth.application.exceptions.UserAlreadyExistsException
 import org.springframework.http.HttpStatus
@@ -57,6 +58,18 @@ class GlobalExceptionHandler {
                 ErrorResponse(
                     code = "AUTH_001",
                     message = ex.message ?: "User already exists"
+                )
+            )
+
+    @ExceptionHandler(InvalidCredentialsException::class)
+    fun handleInvalidCredentials(ex: InvalidCredentialsException) =
+        ResponseEntity
+            .status(HttpStatus.UNAUTHORIZED)
+            .body(
+                ErrorResponse(
+                    code = "AUTH_002",
+                    message = ex.message ?: "Invalid email or password",
+                    errors = emptyMap()
                 )
             )
 
