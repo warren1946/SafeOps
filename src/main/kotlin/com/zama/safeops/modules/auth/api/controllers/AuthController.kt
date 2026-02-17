@@ -28,8 +28,10 @@ class AuthController(
 ) {
 
     @PostMapping("/register")
-    fun register(@Valid @RequestBody req: RegisterRequest) =
+    fun register(@Valid @RequestBody req: RegisterRequest) {
+        println("REGISTER HIT")
         userService.register(req.email, req.password, req.roles).toResponse()
+    }
 
     @PostMapping("/login")
     fun login(@Valid @RequestBody req: LoginRequest): AuthResponse {

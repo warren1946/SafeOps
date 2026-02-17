@@ -25,6 +25,7 @@ class JwtAuthenticationFilter(private val tokenService: TokenService, private va
 
     override fun shouldNotFilter(request: HttpServletRequest): Boolean {
         println("shouldNotFilter: ${request.servletPath}")
+        println("FILTER RAN: ${request.method} ${request.servletPath}")
         return request.servletPath.startsWith("/api/auth/")
 
     }
