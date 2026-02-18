@@ -12,7 +12,7 @@ CREATE TABLE hazards (
 ALTER TABLE hazards
 ADD CONSTRAINT fk_hazard_assigned_to
 FOREIGN KEY (assigned_to)
-REFERENCES users(id);
+REFERENCES app_user(id);
 
 -- Optional but recommended: performance indexes
 CREATE INDEX idx_hazards_status ON hazards(status);
