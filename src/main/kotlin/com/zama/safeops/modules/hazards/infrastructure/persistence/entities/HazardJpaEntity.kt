@@ -27,6 +27,9 @@ class HazardJpaEntity(
 
     val assignedTo: Long? = null,
 
+    @Column(nullable = false)
     val createdAt: Instant,
+
+    @Column(nullable = false)
     val updatedAt: Instant
 )
