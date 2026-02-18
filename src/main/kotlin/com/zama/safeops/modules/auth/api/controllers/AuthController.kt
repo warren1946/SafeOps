@@ -11,6 +11,7 @@ import com.zama.safeops.modules.auth.api.dto.*
 import com.zama.safeops.modules.auth.api.mappers.toResponse
 import com.zama.safeops.modules.auth.application.services.AuthService
 import com.zama.safeops.modules.auth.application.services.UserService
+import com.zama.safeops.modules.shared.api.ApiController
 import com.zama.safeops.modules.shared.api.ApiResponse
 import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.PostMapping
@@ -20,47 +21,25 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/auth")
-class AuthController(
-    private val userService: UserService,
-    private val authService: AuthService
-) {
+class AuthController(private val userService: UserService, private val authService: AuthService) : ApiController() {
 
     @PostMapping("/register")
     fun register(@Valid @RequestBody req: RegisterRequest): ApiResponse<UserResponse> {
         val user = userService.register(req.email, req.password, req.roles).toResponse()
-
-        return ApiResponse(
-            success = true,
-            message = "User registered successfully",
-            data = user
-        )
+        return ok("User registered successfully", user)
     }
 
     @PostMapping("/login")
     fun login(@Valid @RequestBody req: LoginRequest): ApiResponse<AuthResponse> {
         val tokens = authService.login(req.email, req.password)
-
-        return ApiResponse(
-            success = true,
-            message = "Login successful",
-            data = AuthResponse(
-                accessToken = tokens.accessToken,
-                refreshToken = tokens.refreshToken
-            )
-        )
+        val response = AuthResponse(tokens.accessToken, tokens.refreshToken)
+        return ok("Login successful", response)
     }
 
     @PostMapping("/refresh")
     fun refresh(@Valid @RequestBody req: RefreshRequest): ApiResponse<AuthResponse> {
         val tokens = authService.refresh(req.refreshToken)
-
-        return ApiResponse(
-            success = true,
-            message = "Token refreshed successfully",
-            data = AuthResponse(
-                accessToken = tokens.accessToken,
-                refreshToken = tokens.refreshToken
-            )
-        )
+        val response = AuthResponse(tokens.accessToken, tokens.refreshToken)
+        return ok("Token refreshed successfully", response)
     }
 }

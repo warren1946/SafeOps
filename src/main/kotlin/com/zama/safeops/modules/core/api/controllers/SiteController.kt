@@ -8,23 +8,25 @@
 package com.zama.safeops.modules.core.api.controllers
 
 import com.zama.safeops.modules.core.api.dto.CreateSiteRequest
-import com.zama.safeops.modules.core.api.dto.SiteResponse
 import com.zama.safeops.modules.core.api.mappers.toResponse
 import com.zama.safeops.modules.core.application.services.SiteService
+import com.zama.safeops.modules.shared.api.ApiController
 import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/core/sites")
-class SiteController(
-    private val siteService: SiteService
-) {
+class SiteController(private val siteService: SiteService) : ApiController() {
 
     @PostMapping
-    fun create(@Valid @RequestBody req: CreateSiteRequest): SiteResponse =
+    fun create(@Valid @RequestBody req: CreateSiteRequest) = created(
+        "Site created successfully",
         siteService.createSite(req.name, req.mineId).toResponse()
+    )
 
     @GetMapping
-    fun list(): List<SiteResponse> =
+    fun list() = ok(
+        "Sites retrieved successfully",
         siteService.listSites().map { it.toResponse() }
+    )
 }
