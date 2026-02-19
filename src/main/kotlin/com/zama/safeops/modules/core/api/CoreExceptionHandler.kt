@@ -17,14 +17,12 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 class CoreExceptionHandler {
 
     @ExceptionHandler(CoreException::class)
-    fun handleCoreException(ex: CoreException): ResponseEntity<ApiResponse<Nothing>> {
-        return ResponseEntity
-            .status(ex.httpStatus)
-            .body(
-                ApiResponse.error(
-                    code = ex.code,
-                    message = ex.userMessage
-                )
+    fun handleCoreException(ex: CoreException): ResponseEntity<ApiResponse<Nothing>> = ResponseEntity
+        .status(ex.httpStatus)
+        .body(
+            ApiResponse.error(
+                code = ex.code,
+                message = ex.userMessage
             )
-    }
+        )
 }

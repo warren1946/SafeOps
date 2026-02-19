@@ -17,14 +17,12 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 class HazardExceptionHandler {
 
     @ExceptionHandler(HazardException::class)
-    fun handleHazardException(ex: HazardException): ResponseEntity<ApiResponse<Nothing>> {
-        return ResponseEntity
-            .status(ex.httpStatus)
-            .body(
-                ApiResponse.error(
-                    code = ex.code,
-                    message = ex.userMessage
-                )
+    fun handleHazardException(ex: HazardException): ResponseEntity<ApiResponse<Nothing>> = ResponseEntity
+        .status(ex.httpStatus)
+        .body(
+            ApiResponse.error(
+                code = ex.code,
+                message = ex.userMessage
             )
-    }
+        )
 }

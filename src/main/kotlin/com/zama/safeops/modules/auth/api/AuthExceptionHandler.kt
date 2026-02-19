@@ -17,14 +17,12 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 class AuthExceptionHandler {
 
     @ExceptionHandler(AuthException::class)
-    fun handleAuthException(ex: AuthException): ResponseEntity<ApiResponse<Nothing>> {
-        return ResponseEntity
-            .status(ex.httpStatus)
-            .body(
-                ApiResponse.error(
-                    code = ex.code,
-                    message = ex.userMessage
-                )
+    fun handleAuthException(ex: AuthException): ResponseEntity<ApiResponse<Nothing>> = ResponseEntity
+        .status(ex.httpStatus)
+        .body(
+            ApiResponse.error(
+                code = ex.code,
+                message = ex.userMessage
             )
-    }
+        )
 }
