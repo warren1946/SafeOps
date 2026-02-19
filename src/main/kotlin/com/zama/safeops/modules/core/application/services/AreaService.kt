@@ -7,10 +7,12 @@
 
 package com.zama.safeops.modules.core.application.services
 
-import com.zama.safeops.modules.core.application.exceptions.NotFoundException
 import com.zama.safeops.modules.core.application.ports.AreaPort
+import com.zama.safeops.modules.core.domain.exceptions.NotFoundCoreException
 import com.zama.safeops.modules.core.domain.model.Area
-import com.zama.safeops.modules.core.domain.valueobjects.*
+import com.zama.safeops.modules.core.domain.valueobjects.AreaId
+import com.zama.safeops.modules.core.domain.valueobjects.AreaName
+import com.zama.safeops.modules.core.domain.valueobjects.ShaftId
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -23,7 +25,7 @@ class AreaService(
     fun createArea(name: String, shaftId: Long): Area {
         val shaftIdVo = ShaftId(shaftId)
         if (!areaPort.existsShaft(shaftIdVo)) {
-            throw NotFoundException("Shaft $shaftId not found")
+            throw NotFoundCoreException("Shaft $shaftId not found")
         }
 
         val area = Area(

@@ -7,9 +7,9 @@
 
 package com.zama.safeops.modules.auth.infrastructure.security
 
-import com.zama.safeops.modules.auth.application.exceptions.ExpiredTokenException
-import com.zama.safeops.modules.auth.application.exceptions.InvalidTokenException
 import com.zama.safeops.modules.auth.application.services.TokenService
+import com.zama.safeops.modules.auth.domain.exceptions.ExpiredTokenException
+import com.zama.safeops.modules.auth.domain.exceptions.InvalidTokenException
 import com.zama.safeops.modules.auth.domain.model.User
 import io.jsonwebtoken.ExpiredJwtException
 import io.jsonwebtoken.JwtException
@@ -81,7 +81,7 @@ class JwtTokenService(
         } catch (ex: ExpiredJwtException) {
             throw ExpiredTokenException()
         } catch (ex: JwtException) {
-            throw InvalidTokenException()
+            throw InvalidTokenException("Invalid token")
         }
     }
 }

@@ -7,10 +7,12 @@
 
 package com.zama.safeops.modules.core.application.services
 
-import com.zama.safeops.modules.core.application.exceptions.NotFoundException
 import com.zama.safeops.modules.core.application.ports.MinePort
+import com.zama.safeops.modules.core.domain.exceptions.NotFoundCoreException
 import com.zama.safeops.modules.core.domain.model.Mine
-import com.zama.safeops.modules.core.domain.valueobjects.*
+import com.zama.safeops.modules.core.domain.valueobjects.MineCode
+import com.zama.safeops.modules.core.domain.valueobjects.MineId
+import com.zama.safeops.modules.core.domain.valueobjects.MineName
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -34,5 +36,5 @@ class MineService(
 
     @Transactional(readOnly = true)
     fun getMine(id: Long): Mine =
-        minePort.findById(MineId(id)) ?: throw NotFoundException("Mine $id not found")
+        minePort.findById(MineId(id)) ?: throw NotFoundCoreException("Mine $id not found")
 }

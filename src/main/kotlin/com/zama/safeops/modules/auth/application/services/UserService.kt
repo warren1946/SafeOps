@@ -7,10 +7,10 @@
 
 package com.zama.safeops.modules.auth.application.services
 
-import com.zama.safeops.modules.auth.application.exceptions.NotFoundException
-import com.zama.safeops.modules.auth.application.exceptions.UserAlreadyExistsException
 import com.zama.safeops.modules.auth.application.ports.RolePort
 import com.zama.safeops.modules.auth.application.ports.UserPort
+import com.zama.safeops.modules.auth.domain.exceptions.NotFoundException
+import com.zama.safeops.modules.auth.domain.exceptions.UserAlreadyExistsException
 import com.zama.safeops.modules.auth.domain.model.Role
 import com.zama.safeops.modules.auth.domain.model.User
 import com.zama.safeops.modules.auth.domain.valueobjects.Email

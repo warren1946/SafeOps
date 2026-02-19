@@ -15,6 +15,7 @@ object ErrorCodes {
     const val AUTH_INVALID_CREDENTIALS = "AUTH_002"
     const val AUTH_INVALID_TOKEN = "AUTH_003"
     const val AUTH_EXPIRED_TOKEN = "AUTH_004"
+    const val AUTH_NOT_FOUND = "AUTH_005"
 
     const val CORE_NOT_FOUND = "CORE_404"
     const val GENERIC = "GENERIC_500"

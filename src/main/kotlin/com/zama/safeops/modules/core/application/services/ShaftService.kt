@@ -7,10 +7,12 @@
 
 package com.zama.safeops.modules.core.application.services
 
-import com.zama.safeops.modules.core.application.exceptions.NotFoundException
 import com.zama.safeops.modules.core.application.ports.ShaftPort
+import com.zama.safeops.modules.core.domain.exceptions.NotFoundCoreException
 import com.zama.safeops.modules.core.domain.model.Shaft
-import com.zama.safeops.modules.core.domain.valueobjects.*
+import com.zama.safeops.modules.core.domain.valueobjects.ShaftId
+import com.zama.safeops.modules.core.domain.valueobjects.ShaftName
+import com.zama.safeops.modules.core.domain.valueobjects.SiteId
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -23,7 +25,7 @@ class ShaftService(
     fun createShaft(name: String, siteId: Long): Shaft {
         val siteIdVo = SiteId(siteId)
         if (!shaftPort.existsSite(siteIdVo)) {
-            throw NotFoundException("Site $siteId not found")
+            throw NotFoundCoreException("Site $siteId not found")
         }
 
         val shaft = Shaft(

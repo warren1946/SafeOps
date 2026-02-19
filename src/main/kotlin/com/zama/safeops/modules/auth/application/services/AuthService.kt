@@ -7,9 +7,11 @@
 
 package com.zama.safeops.modules.auth.application.services
 
-import com.zama.safeops.modules.auth.application.exceptions.InvalidCredentialsException
 import com.zama.safeops.modules.auth.application.ports.UserPort
+import com.zama.safeops.modules.auth.domain.exceptions.InvalidCredentialsException
+import com.zama.safeops.modules.auth.domain.exceptions.InvalidTokenException
 import com.zama.safeops.modules.auth.domain.valueobjects.Email
+import com.zama.safeops.modules.auth.domain.valueobjects.UserId
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -28,10 +30,10 @@ class AuthService(
     @Transactional(readOnly = true)
     fun login(email: String, rawPassword: String): AuthTokens {
         val user = userPort.findByEmail(Email(email))
-            ?: throw InvalidCredentialsException("Invalid email or password")
+            ?: throw InvalidCredentialsException()
 
         if (!passwordEncoder.matches(rawPassword, user.password.value)) {
-            throw InvalidCredentialsException("Invalid email or password")
+            throw InvalidCredentialsException()
         }
 
         return AuthTokens(
@@ -43,8 +45,8 @@ class AuthService(
     @Transactional(readOnly = true)
     fun refresh(refreshToken: String): AuthTokens {
         val userId = tokenService.parseUserIdFromRefreshToken(refreshToken)
-        val user = userPort.findById(com.zama.safeops.modules.auth.domain.valueobjects.UserId(userId))
-            ?: throw InvalidCredentialsException("Invalid refresh token")
+        val user = userPort.findById(UserId(userId))
+            ?: throw InvalidTokenException("Invalid refresh token")
 
         return AuthTokens(
             accessToken = tokenService.generateAccessToken(user),
