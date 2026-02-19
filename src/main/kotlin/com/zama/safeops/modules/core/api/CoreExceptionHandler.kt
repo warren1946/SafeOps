@@ -16,7 +16,6 @@ import org.springframework.http.ResponseEntity
 import org.springframework.orm.ObjectOptimisticLockingFailureException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
-import org.springframework.web.servlet.resource.NoResourceFoundException
 
 @RestControllerAdvice(basePackages = ["com.zama.safeops.modules.core"])
 class CoreExceptionHandler {
@@ -79,16 +78,4 @@ class CoreExceptionHandler {
         val match = regex.find(msg)
         return match?.groups?.get(1)?.value
     }
-
-
-    // Catch no resource found
-    @ExceptionHandler(NoResourceFoundException::class)
-    fun handleNoResourceFound(ex: NoResourceFoundException): ResponseEntity<ApiResponse<Nothing>> = ResponseEntity
-        .status(HttpStatus.NOT_FOUND)
-        .body(
-            ApiResponse.error(
-                code = ErrorCodes.CORE_NOT_FOUND,
-                message = "The requested endpoint does not exist"
-            )
-        )
 }
