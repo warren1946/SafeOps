@@ -11,7 +11,7 @@ import com.zama.safeops.modules.shared.constants.ErrorCodes
 import org.springframework.http.HttpStatus
 
 class NotFoundCoreException(message: String) : CoreException(
-    code = ErrorCodes.AUTH_NOT_FOUND,
+    code = ErrorCodes.CORE_NOT_FOUND,
     httpStatus = HttpStatus.NOT_FOUND,
     userMessage = message
 )

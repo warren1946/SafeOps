@@ -10,6 +10,7 @@ package com.zama.safeops.modules.shared.constants
 object ErrorCodes {
 
     const val GENERIC = "GENERIC_500"
+    const val NOT_FOUND = "GENERIC_404"
 
     const val VALIDATION = "VALIDATION_001"
     const val INVALID_INPUT = "VALIDATION_002"
