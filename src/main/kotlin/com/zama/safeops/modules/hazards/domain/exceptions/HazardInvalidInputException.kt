@@ -10,8 +10,8 @@ package com.zama.safeops.modules.hazards.domain.exceptions
 import com.zama.safeops.modules.shared.constants.ErrorCodes
 import org.springframework.http.HttpStatus
 
-class HazardNotFoundException(id: Long) : HazardException(
-    code = ErrorCodes.HAZARD_NOT_FOUND,
-    httpStatus = HttpStatus.NOT_FOUND,
-    userMessage = "Hazard with ID $id not found"
+class HazardInvalidInputException(message: String) : HazardException(
+    code = ErrorCodes.HAZARD_INVALID_INPUT,
+    httpStatus = HttpStatus.BAD_REQUEST,
+    userMessage = message
 )

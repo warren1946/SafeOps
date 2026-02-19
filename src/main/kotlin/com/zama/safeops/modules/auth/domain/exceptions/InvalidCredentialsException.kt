@@ -5,13 +5,13 @@
  * No warranty provided.
  */
 
-package com.zama.safeops.modules.hazards.domain.exceptions
+package com.zama.safeops.modules.auth.domain.exceptions
 
 import com.zama.safeops.modules.shared.constants.ErrorCodes
 import org.springframework.http.HttpStatus
 
-class HazardNotFoundException(id: Long) : HazardException(
-    code = ErrorCodes.HAZARD_NOT_FOUND,
-    httpStatus = HttpStatus.NOT_FOUND,
-    userMessage = "Hazard with ID $id not found"
+class InvalidCredentialsException : AuthException(
+    code = ErrorCodes.AUTH_INVALID_CREDENTIALS,
+    httpStatus = HttpStatus.UNAUTHORIZED,
+    userMessage = "Invalid email or password"
 )

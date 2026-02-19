@@ -7,11 +7,11 @@
 
 package com.zama.safeops.modules.hazards.domain.exceptions
 
-import com.zama.safeops.modules.shared.constants.ErrorCodes
+import com.zama.safeops.modules.shared.exceptions.ApiException
 import org.springframework.http.HttpStatus
 
-class HazardNotFoundException(id: Long) : HazardException(
-    code = ErrorCodes.HAZARD_NOT_FOUND,
-    httpStatus = HttpStatus.NOT_FOUND,
-    userMessage = "Hazard with ID $id not found"
-)
+sealed class HazardException(
+    override val code: String,
+    override val httpStatus: HttpStatus,
+    override val userMessage: String
+) : RuntimeException(userMessage), ApiException

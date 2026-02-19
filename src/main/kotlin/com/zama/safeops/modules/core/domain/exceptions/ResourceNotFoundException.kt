@@ -5,13 +5,13 @@
  * No warranty provided.
  */
 
-package com.zama.safeops.modules.hazards.domain.exceptions
+package com.zama.safeops.modules.core.domain.exceptions
 
 import com.zama.safeops.modules.shared.constants.ErrorCodes
 import org.springframework.http.HttpStatus
 
-class HazardNotFoundException(id: Long) : HazardException(
-    code = ErrorCodes.HAZARD_NOT_FOUND,
+class ResourceNotFoundException(resource: String) : CoreException(
+    code = ErrorCodes.CORE_NOT_FOUND,
     httpStatus = HttpStatus.NOT_FOUND,
-    userMessage = "Hazard with ID $id not found"
+    userMessage = "$resource not found"
 )

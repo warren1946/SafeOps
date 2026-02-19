@@ -5,7 +5,7 @@
  * No warranty provided.
  */
 
-package com.zama.safeops.modules.shared.api
+package com.zama.safeops.modules.shared.constants
 
 object ErrorCodes {
     const val VALIDATION = "VALIDATION_001"
@@ -18,4 +18,10 @@ object ErrorCodes {
 
     const val CORE_NOT_FOUND = "CORE_404"
     const val GENERIC = "GENERIC_500"
+
+    const val HAZARD_NOT_FOUND = "HAZARD_404"
+    const val HAZARD_INVALID_INPUT = "HAZARD_001"
+    const val HAZARD_ASSIGNMENT_FAILED = "HAZARD_002"
+    const val HAZARD_UPDATE_NOT_ALLOWED = "HAZARD_003"
+
 }
