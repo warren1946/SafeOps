@@ -8,6 +8,9 @@
 package com.zama.safeops.modules.shared.constants
 
 object ErrorCodes {
+
+    const val GENERIC = "GENERIC_500"
+    
     const val VALIDATION = "VALIDATION_001"
     const val INVALID_INPUT = "VALIDATION_002"
 
@@ -18,7 +21,7 @@ object ErrorCodes {
     const val AUTH_NOT_FOUND = "AUTH_005"
 
     const val CORE_NOT_FOUND = "CORE_404"
-    const val GENERIC = "GENERIC_500"
+    const val CORE_CONFLICT = "CORE_409"
 
     const val HAZARD_NOT_FOUND = "HAZARD_404"
     const val HAZARD_INVALID_INPUT = "HAZARD_001"
