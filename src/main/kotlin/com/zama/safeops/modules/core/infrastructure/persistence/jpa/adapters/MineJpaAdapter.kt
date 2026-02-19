@@ -20,7 +20,7 @@ class MineJpaAdapter(
 ) : MinePort {
 
     override fun save(mine: Mine): Mine =
-        repo.save(MineJpaEntity.Companion.fromDomain(mine)).toDomain()
+        repo.save(MineJpaEntity.fromDomain(mine)).toDomain()
 
     override fun findAll(): List<Mine> =
         repo.findAll().map { it.toDomain() }

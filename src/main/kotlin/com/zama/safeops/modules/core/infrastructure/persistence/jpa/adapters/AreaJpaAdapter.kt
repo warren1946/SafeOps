@@ -9,7 +9,8 @@ package com.zama.safeops.modules.core.infrastructure.persistence.jpa.adapters
 
 import com.zama.safeops.modules.core.application.ports.AreaPort
 import com.zama.safeops.modules.core.domain.model.Area
-import com.zama.safeops.modules.core.domain.valueobjects.*
+import com.zama.safeops.modules.core.domain.valueobjects.AreaId
+import com.zama.safeops.modules.core.domain.valueobjects.ShaftId
 import com.zama.safeops.modules.core.infrastructure.persistence.jpa.entities.AreaJpaEntity
 import com.zama.safeops.modules.core.infrastructure.persistence.jpa.repository.SpringDataAreaRepository
 import com.zama.safeops.modules.core.infrastructure.persistence.jpa.repository.SpringDataShaftRepository
@@ -22,7 +23,7 @@ class AreaJpaAdapter(
 ) : AreaPort {
 
     override fun save(area: Area): Area =
-        repo.save(AreaJpaEntity.Companion.fromDomain(area)).toDomain()
+        repo.save(AreaJpaEntity.fromDomain(area)).toDomain()
 
     override fun findAll(): List<Area> =
         repo.findAll().map { it.toDomain() }

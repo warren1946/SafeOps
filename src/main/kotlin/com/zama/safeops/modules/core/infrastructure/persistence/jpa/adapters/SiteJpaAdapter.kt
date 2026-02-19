@@ -9,7 +9,8 @@ package com.zama.safeops.modules.core.infrastructure.persistence.jpa.adapters
 
 import com.zama.safeops.modules.core.application.ports.SitePort
 import com.zama.safeops.modules.core.domain.model.Site
-import com.zama.safeops.modules.core.domain.valueobjects.*
+import com.zama.safeops.modules.core.domain.valueobjects.MineId
+import com.zama.safeops.modules.core.domain.valueobjects.SiteId
 import com.zama.safeops.modules.core.infrastructure.persistence.jpa.entities.SiteJpaEntity
 import com.zama.safeops.modules.core.infrastructure.persistence.jpa.repository.SpringDataMineRepository
 import com.zama.safeops.modules.core.infrastructure.persistence.jpa.repository.SpringDataSiteRepository
@@ -22,7 +23,7 @@ class SiteJpaAdapter(
 ) : SitePort {
 
     override fun save(site: Site): Site =
-        repo.save(SiteJpaEntity.Companion.fromDomain(site)).toDomain()
+        repo.save(SiteJpaEntity.fromDomain(site)).toDomain()
 
     override fun findAll(): List<Site> =
         repo.findAll().map { it.toDomain() }

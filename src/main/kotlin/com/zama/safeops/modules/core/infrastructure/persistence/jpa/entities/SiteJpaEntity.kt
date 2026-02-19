@@ -41,7 +41,7 @@ class SiteJpaEntity(
 
     companion object {
         fun fromDomain(site: Site) = SiteJpaEntity(
-            id = site.id.value,
+            id = site.id?.value,
             name = site.name.value,
             mineId = site.mineId.value
         )

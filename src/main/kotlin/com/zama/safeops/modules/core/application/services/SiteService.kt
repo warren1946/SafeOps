@@ -11,7 +11,6 @@ import com.zama.safeops.modules.core.application.ports.SitePort
 import com.zama.safeops.modules.core.domain.exceptions.NotFoundCoreException
 import com.zama.safeops.modules.core.domain.model.Site
 import com.zama.safeops.modules.core.domain.valueobjects.MineId
-import com.zama.safeops.modules.core.domain.valueobjects.SiteId
 import com.zama.safeops.modules.core.domain.valueobjects.SiteName
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -29,7 +28,6 @@ class SiteService(
         }
 
         val site = Site(
-            id = SiteId(1),
             name = SiteName(name),
             mineId = mineIdVo
         )

@@ -7,36 +7,28 @@
 
 package com.zama.safeops.modules.core.domain.model
 
-import com.zama.safeops.modules.core.domain.valueobjects.AreaId
-import com.zama.safeops.modules.core.domain.valueobjects.AreaName
-import com.zama.safeops.modules.core.domain.valueobjects.MineCode
-import com.zama.safeops.modules.core.domain.valueobjects.MineId
-import com.zama.safeops.modules.core.domain.valueobjects.MineName
-import com.zama.safeops.modules.core.domain.valueobjects.ShaftId
-import com.zama.safeops.modules.core.domain.valueobjects.ShaftName
-import com.zama.safeops.modules.core.domain.valueobjects.SiteId
-import com.zama.safeops.modules.core.domain.valueobjects.SiteName
+import com.zama.safeops.modules.core.domain.valueobjects.*
 
 data class Mine(
-    val id: MineId,
+    val id: MineId? = null,
     val name: MineName,
     val code: MineCode
 )
 
 data class Site(
-    val id: SiteId,
+    val id: SiteId? = null,
     val name: SiteName,
     val mineId: MineId
 )
 
 data class Shaft(
-    val id: ShaftId,
+    val id: ShaftId? = null,
     val name: ShaftName,
     val siteId: SiteId
 )
 
 data class Area(
-    val id: AreaId,
+    val id: AreaId? = null,
     val name: AreaName,
     val shaftId: ShaftId
 )

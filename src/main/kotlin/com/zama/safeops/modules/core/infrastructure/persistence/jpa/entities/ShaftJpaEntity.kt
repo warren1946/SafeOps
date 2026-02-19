@@ -41,7 +41,7 @@ class ShaftJpaEntity(
 
     companion object {
         fun fromDomain(shaft: Shaft) = ShaftJpaEntity(
-            id = shaft.id.value,
+            id = shaft.id?.value,
             name = shaft.name.value,
             siteId = shaft.siteId.value
         )

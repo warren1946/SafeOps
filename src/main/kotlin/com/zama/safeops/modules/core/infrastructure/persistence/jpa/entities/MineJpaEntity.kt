@@ -11,12 +11,7 @@ import com.zama.safeops.modules.core.domain.model.Mine
 import com.zama.safeops.modules.core.domain.valueobjects.MineCode
 import com.zama.safeops.modules.core.domain.valueobjects.MineId
 import com.zama.safeops.modules.core.domain.valueobjects.MineName
-import jakarta.persistence.Column
-import jakarta.persistence.Entity
-import jakarta.persistence.GeneratedValue
-import jakarta.persistence.GenerationType
-import jakarta.persistence.Id
-import jakarta.persistence.Table
+import jakarta.persistence.*
 
 @Entity
 @Table(name = "mine")
@@ -46,7 +41,7 @@ class MineJpaEntity(
 
     companion object {
         fun fromDomain(mine: Mine) = MineJpaEntity(
-            id = mine.id.value,
+            id = mine.id?.value,
             name = mine.name.value,
             code = mine.code.value
         )

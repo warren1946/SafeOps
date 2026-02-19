@@ -10,7 +10,6 @@ package com.zama.safeops.modules.core.application.services
 import com.zama.safeops.modules.core.application.ports.AreaPort
 import com.zama.safeops.modules.core.domain.exceptions.NotFoundCoreException
 import com.zama.safeops.modules.core.domain.model.Area
-import com.zama.safeops.modules.core.domain.valueobjects.AreaId
 import com.zama.safeops.modules.core.domain.valueobjects.AreaName
 import com.zama.safeops.modules.core.domain.valueobjects.ShaftId
 import org.springframework.stereotype.Service
@@ -29,7 +28,6 @@ class AreaService(
         }
 
         val area = Area(
-            id = AreaId(1),
             name = AreaName(name),
             shaftId = shaftIdVo
         )

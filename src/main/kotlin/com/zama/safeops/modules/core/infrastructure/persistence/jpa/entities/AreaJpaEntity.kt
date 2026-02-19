@@ -41,7 +41,7 @@ class AreaJpaEntity(
 
     companion object {
         fun fromDomain(area: Area) = AreaJpaEntity(
-            id = area.id.value,
+            id = area.id?.value,
             name = area.name.value,
             shaftId = area.shaftId.value
         )

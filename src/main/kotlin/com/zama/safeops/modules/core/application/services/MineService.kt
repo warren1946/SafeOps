@@ -24,7 +24,6 @@ class MineService(
     @Transactional
     fun createMine(name: String, code: String): Mine {
         val mine = Mine(
-            id = MineId(1),
             name = MineName(name),
             code = MineCode(code)
         )
