@@ -31,7 +31,7 @@ class UserService(
     fun register(email: String, rawPassword: String, roleNames: Set<String>): User {
         val emailVo = Email(email)
         if (userPort.existsByEmail(emailVo)) {
-            throw UserAlreadyExistsException("User with email $email already exists")
+            throw UserAlreadyExistsException(email)
         }
 
         val roles: Set<Role> = roleNames.map { name ->
