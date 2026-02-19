@@ -29,4 +29,10 @@ class ShaftController(private val shaftService: ShaftService) : ApiController() 
         "Shafts retrieved successfully",
         shaftService.listShafts().map { it.toResponse() }
     )
+    
+    @GetMapping("/{id}")
+    fun get(@PathVariable id: Long) = ok(
+        "Shaft retrieved successfully",
+        shaftService.getShaft(id).toResponse()
+    )
 }

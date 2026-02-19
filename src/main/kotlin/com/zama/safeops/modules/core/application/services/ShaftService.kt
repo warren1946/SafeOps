@@ -10,6 +10,7 @@ package com.zama.safeops.modules.core.application.services
 import com.zama.safeops.modules.core.application.ports.ShaftPort
 import com.zama.safeops.modules.core.domain.exceptions.NotFoundCoreException
 import com.zama.safeops.modules.core.domain.model.Shaft
+import com.zama.safeops.modules.core.domain.valueobjects.ShaftId
 import com.zama.safeops.modules.core.domain.valueobjects.ShaftName
 import com.zama.safeops.modules.core.domain.valueobjects.SiteId
 import org.springframework.stereotype.Service
@@ -36,4 +37,7 @@ class ShaftService(
 
     @Transactional(readOnly = true)
     fun listShafts(): List<Shaft> = shaftPort.findAll()
+
+    @Transactional(readOnly = true)
+    fun getShaft(id: Long): Shaft = shaftPort.findById(ShaftId(id)) ?: throw NotFoundCoreException("Shaft $id not found")
 }

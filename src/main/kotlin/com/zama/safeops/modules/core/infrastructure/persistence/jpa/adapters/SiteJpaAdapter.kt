@@ -28,6 +28,9 @@ class SiteJpaAdapter(
     override fun findAll(): List<Site> =
         repo.findAll().map { it.toDomain() }
 
+    override fun findById(id: SiteId): Site? =
+        repo.findById(id.value).orElse(null)?.toDomain()
+
     override fun exists(id: SiteId): Boolean =
         repo.existsById(id.value)
 

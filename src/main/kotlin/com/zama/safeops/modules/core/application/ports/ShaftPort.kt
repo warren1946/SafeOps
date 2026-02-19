@@ -14,6 +14,7 @@ import com.zama.safeops.modules.core.domain.valueobjects.SiteId
 interface ShaftPort {
     fun save(shaft: Shaft): Shaft
     fun findAll(): List<Shaft>
+    fun findById(id: ShaftId): Shaft?
     fun exists(id: ShaftId): Boolean
     fun existsSite(siteId: SiteId): Boolean
 }

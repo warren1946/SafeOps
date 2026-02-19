@@ -8,12 +8,13 @@
 package com.zama.safeops.modules.core.application.ports
 
 import com.zama.safeops.modules.core.domain.model.Site
-import com.zama.safeops.modules.core.domain.valueobjects.SiteId
 import com.zama.safeops.modules.core.domain.valueobjects.MineId
+import com.zama.safeops.modules.core.domain.valueobjects.SiteId
 
 interface SitePort {
     fun save(site: Site): Site
     fun findAll(): List<Site>
+    fun findById(id: SiteId): Site?
     fun exists(id: SiteId): Boolean
     fun existsMine(mineId: MineId): Boolean
 }

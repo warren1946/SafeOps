@@ -28,6 +28,9 @@ class ShaftJpaAdapter(
     override fun findAll(): List<Shaft> =
         repo.findAll().map { it.toDomain() }
 
+    override fun findById(id: ShaftId): Shaft? =
+        repo.findById(id.value).orElse(null)?.toDomain()
+
     override fun exists(id: ShaftId): Boolean =
         repo.existsById(id.value)
 

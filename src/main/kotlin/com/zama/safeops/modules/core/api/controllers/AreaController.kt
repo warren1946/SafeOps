@@ -30,4 +30,9 @@ class AreaController(private val areaService: AreaService) : ApiController() {
         areaService.listAreas().map { it.toResponse() }
     )
 
+    @GetMapping("/{id}")
+    fun get(@PathVariable id: Long) = ok(
+        "Area retrieved successfully",
+        areaService.getArea(id).toResponse()
+    )
 }

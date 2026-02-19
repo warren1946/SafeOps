@@ -28,6 +28,9 @@ class AreaJpaAdapter(
     override fun findAll(): List<Area> =
         repo.findAll().map { it.toDomain() }
 
+    override fun findById(id: AreaId): Area? =
+        repo.findById(id.value).orElse(null)?.toDomain()
+
     override fun exists(id: AreaId): Boolean =
         repo.existsById(id.value)
 

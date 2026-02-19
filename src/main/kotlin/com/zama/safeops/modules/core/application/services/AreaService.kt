@@ -10,6 +10,7 @@ package com.zama.safeops.modules.core.application.services
 import com.zama.safeops.modules.core.application.ports.AreaPort
 import com.zama.safeops.modules.core.domain.exceptions.NotFoundCoreException
 import com.zama.safeops.modules.core.domain.model.Area
+import com.zama.safeops.modules.core.domain.valueobjects.AreaId
 import com.zama.safeops.modules.core.domain.valueobjects.AreaName
 import com.zama.safeops.modules.core.domain.valueobjects.ShaftId
 import org.springframework.stereotype.Service
@@ -36,4 +37,7 @@ class AreaService(
 
     @Transactional(readOnly = true)
     fun listAreas(): List<Area> = areaPort.findAll()
+
+    @Transactional(readOnly = true)
+    fun getArea(id: Long): Area = areaPort.findById(AreaId(id)) ?: throw NotFoundCoreException("Area $id not found")
 }

@@ -29,4 +29,10 @@ class SiteController(private val siteService: SiteService) : ApiController() {
         "Sites retrieved successfully",
         siteService.listSites().map { it.toResponse() }
     )
+
+    @GetMapping("/{id}")
+    fun get(@PathVariable id: Long) = ok(
+        "Site retrieved successfully",
+        siteService.getSite(id).toResponse()
+    )
 }
