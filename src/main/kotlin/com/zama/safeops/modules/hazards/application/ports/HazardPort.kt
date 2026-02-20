@@ -5,7 +5,7 @@
  * No warranty provided.
  */
 
-package com.zama.safeops.modules.hazards.domain.ports
+package com.zama.safeops.modules.hazards.application.ports
 
 import com.zama.safeops.modules.hazards.domain.model.Hazard
 
