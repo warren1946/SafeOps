@@ -32,6 +32,9 @@ class UserJpaAdapter(
     override fun findById(id: UserId): User? =
         repo.findById(id.value).orElse(null)?.toDomain()
 
+    override fun existsById(id: UserId): Boolean =
+        repo.existsById(id.value)
+
     override fun findAll(): List<User> =
         repo.findAll().map { it.toDomain() }
 }

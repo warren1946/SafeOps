@@ -7,6 +7,8 @@
 
 package com.zama.safeops.modules.hazards.application.services
 
+import com.zama.safeops.modules.auth.application.ports.UserPort
+import com.zama.safeops.modules.auth.domain.valueobjects.UserId
 import com.zama.safeops.modules.hazards.application.ports.HazardPort
 import com.zama.safeops.modules.hazards.domain.exceptions.HazardInvalidInputException
 import com.zama.safeops.modules.hazards.domain.exceptions.HazardNotFoundException
@@ -18,9 +20,7 @@ import org.springframework.stereotype.Service
 import java.time.Instant
 
 @Service
-class HazardService(
-    private val hazardPort: HazardPort
-) {
+class HazardService(private val hazardPort: HazardPort, private val userPort: UserPort) {
 
     fun create(title: String, description: String): Hazard {
         validateTitle(title)
@@ -68,7 +68,7 @@ class HazardService(
     }
 
     fun assign(id: Long, userId: Long): Hazard {
-        if (userId <= 0) {
+        if (userId <= 0 || !userPort.existsById(UserId(userId))) {
             throw HazardInvalidInputException("Invalid userId: $userId")
         }
 

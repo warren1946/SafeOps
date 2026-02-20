@@ -16,5 +16,6 @@ interface UserPort {
     fun findByEmail(email: Email): User?
     fun existsByEmail(email: Email): Boolean
     fun findById(id: UserId): User?
+    fun existsById(id: UserId): Boolean
     fun findAll(): List<User>
 }
