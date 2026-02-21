@@ -9,8 +9,30 @@ package com.zama.safeops.modules.safety.infrastructure.persistence.jpa.repositor
 
 import com.zama.safeops.modules.safety.infrastructure.persistence.jpa.entities.SafetyEventJpaEntity
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Query
 import java.time.Instant
 
 interface SpringDataSafetyEventRepository : JpaRepository<SafetyEventJpaEntity, Long> {
+
     fun findByCreatedAtBetween(start: Instant, end: Instant): List<SafetyEventJpaEntity>
+
+    @Query(
+        """
+        select e.severity as key, count(e) as value
+        from SafetyEventJpaEntity e
+        group by e.severity
+        """
+    )
+    fun countBySeverityRaw(): List<Array<Any>>
+
+    @Query(
+        """
+        select e.type as key, count(e) as value
+        from SafetyEventJpaEntity e
+        group by e.type
+        """
+    )
+    fun countByTypeRaw(): List<Array<Any>>
+
+    fun findTop50ByOrderByCreatedAtDesc(): List<SafetyEventJpaEntity>
 }

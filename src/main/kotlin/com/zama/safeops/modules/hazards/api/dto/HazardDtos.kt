@@ -7,14 +7,20 @@
 
 package com.zama.safeops.modules.hazards.api.dto
 
+import com.zama.safeops.modules.safety.domain.model.SafetyLocationType
+
 data class CreateHazardRequest(
     val title: String,
-    val description: String
+    val description: String,
+    val locationType: SafetyLocationType,
+    val locationId: Long
 )
 
 data class UpdateHazardRequest(
     val title: String,
-    val description: String
+    val description: String,
+    val locationType: SafetyLocationType,
+    val locationId: Long
 )
 
 data class AssignHazardRequest(
@@ -27,6 +33,8 @@ data class HazardResponse(
     val description: String,
     val status: String,
     val assignedTo: Long?,
+    val locationType: SafetyLocationType,
+    val locationId: Long,
     val createdAt: String,
     val updatedAt: String
 )

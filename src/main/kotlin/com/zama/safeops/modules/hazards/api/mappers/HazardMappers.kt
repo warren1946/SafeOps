@@ -16,6 +16,8 @@ fun Hazard.toResponse() = HazardResponse(
     description = description.value,
     status = status.name,
     assignedTo = assignedTo,
+    locationType = locationType,
+    locationId = locationId,
     createdAt = createdAt.toString(),
     updatedAt = updatedAt.toString()
 )

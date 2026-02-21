@@ -28,6 +28,9 @@ class SafetyAlertJpaAdapter(
 
     override fun findById(id: SafetyAlertId): SafetyAlert? =
         repo.findById(id.value).orElse(null)?.toDomain()
+
+    override fun findUnacknowledged(): List<SafetyAlert> =
+        repo.findByAcknowledgedFalse().map { it.toDomain() }
 }
 
 private fun SafetyAlert.toEntity() = SafetyAlertJpaEntity(

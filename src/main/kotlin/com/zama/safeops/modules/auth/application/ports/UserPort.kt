@@ -18,4 +18,5 @@ interface UserPort {
     fun findById(id: UserId): User?
     fun existsById(id: UserId): Boolean
     fun findAll(): List<User>
+    fun countActiveOfficers(): Int
 }

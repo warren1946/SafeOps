@@ -10,4 +10,6 @@ package com.zama.safeops.modules.safety.infrastructure.persistence.jpa.repositor
 import com.zama.safeops.modules.safety.infrastructure.persistence.jpa.entities.SafetyAlertJpaEntity
 import org.springframework.data.jpa.repository.JpaRepository
 
-interface SpringDataSafetyAlertRepository : JpaRepository<SafetyAlertJpaEntity, Long>
+interface SpringDataSafetyAlertRepository : JpaRepository<SafetyAlertJpaEntity, Long> {
+    fun findByAcknowledgedFalse(): List<SafetyAlertJpaEntity>
+}

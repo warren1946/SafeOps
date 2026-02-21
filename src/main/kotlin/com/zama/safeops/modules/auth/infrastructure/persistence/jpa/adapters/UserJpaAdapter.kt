@@ -37,4 +37,7 @@ class UserJpaAdapter(
 
     override fun findAll(): List<User> =
         repo.findAll().map { it.toDomain() }
+
+    override fun countActiveOfficers(): Int =
+        repo.countByEnabledTrue()
 }

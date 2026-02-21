@@ -15,4 +15,8 @@ interface SafetyEventPort {
     fun create(event: SafetyEvent): SafetyEvent
     fun findById(id: SafetyEventId): SafetyEvent?
     fun findByPeriod(start: Instant, end: Instant): List<SafetyEvent>
+    fun countByCategory(): Map<String, Int>
+    fun countByType(): Map<String, Int>
+    fun findRecent(limit: Int): List<SafetyEvent>
+    fun findAll(): List<SafetyEvent>
 }

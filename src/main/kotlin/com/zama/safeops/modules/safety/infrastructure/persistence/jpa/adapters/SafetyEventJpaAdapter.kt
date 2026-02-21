@@ -28,6 +28,28 @@ class SafetyEventJpaAdapter(
 
     override fun findByPeriod(start: Instant, end: Instant): List<SafetyEvent> =
         repo.findByCreatedAtBetween(start, end).map { it.toDomain() }
+
+    override fun countByCategory(): Map<String, Int> =
+        repo.countBySeverityRaw().associate { row ->
+            val key = row[0].toString()
+            val value = (row[1] as Number).toInt()
+            key to value
+        }
+
+    override fun countByType(): Map<String, Int> =
+        repo.countByTypeRaw().associate { row ->
+            val key = row[0].toString()
+            val value = (row[1] as Number).toInt()
+            key to value
+        }
+
+    override fun findRecent(limit: Int): List<SafetyEvent> =
+        repo.findTop50ByOrderByCreatedAtDesc()
+            .take(limit)
+            .map { it.toDomain() }
+
+    override fun findAll(): List<SafetyEvent> =
+        repo.findAll().map { it.toDomain() }
 }
 
 private fun SafetyEvent.toEntity() = SafetyEventJpaEntity(

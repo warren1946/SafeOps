@@ -8,6 +8,7 @@
 package com.zama.safeops.modules.hazards.infrastructure.persistence.entities
 
 import com.zama.safeops.modules.hazards.domain.model.HazardStatus
+import com.zama.safeops.modules.safety.domain.model.SafetyLocationType
 import jakarta.persistence.*
 import java.time.Instant
 
@@ -30,6 +31,13 @@ class HazardJpaEntity(
     val status: HazardStatus,
 
     val assignedTo: Long? = null,
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    val locationType: SafetyLocationType,
+
+    @Column(nullable = false)
+    val locationId: Long,
 
     @Column(nullable = false)
     val createdAt: Instant,

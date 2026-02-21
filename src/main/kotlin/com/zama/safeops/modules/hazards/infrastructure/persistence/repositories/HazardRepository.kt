@@ -8,6 +8,9 @@
 package com.zama.safeops.modules.hazards.infrastructure.persistence.repositories
 
 import com.zama.safeops.modules.hazards.infrastructure.persistence.entities.HazardJpaEntity
+import com.zama.safeops.modules.safety.domain.model.SafetyLocationType
 import org.springframework.data.jpa.repository.JpaRepository
 
-interface HazardRepository : JpaRepository<HazardJpaEntity, Long>
+interface HazardRepository : JpaRepository<HazardJpaEntity, Long> {
+    fun findByLocationTypeAndLocationId(locationType: SafetyLocationType, locationId: Long): List<HazardJpaEntity>
+}

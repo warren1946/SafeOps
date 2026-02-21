@@ -23,7 +23,12 @@ class HazardController(private val hazardService: HazardService) : ApiController
     @PostMapping
     fun create(@Valid @RequestBody req: CreateHazardRequest) = created(
         "Hazard created successfully",
-        hazardService.create(req.title, req.description).toResponse()
+        hazardService.create(
+            req.title,
+            req.description,
+            req.locationType,
+            req.locationId
+        ).toResponse()
     )
 
     @GetMapping
@@ -41,7 +46,13 @@ class HazardController(private val hazardService: HazardService) : ApiController
     @PutMapping("/{id}")
     fun update(@PathVariable id: Long, @Valid @RequestBody req: UpdateHazardRequest) = ok(
         "Hazard updated successfully",
-        hazardService.update(id, req.title, req.description).toResponse()
+        hazardService.update(
+            id,
+            req.title,
+            req.description,
+            req.locationType,
+            req.locationId
+        ).toResponse()
     )
 
     @PostMapping("/{id}/resolve")

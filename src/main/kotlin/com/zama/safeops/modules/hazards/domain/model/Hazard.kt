@@ -7,6 +7,7 @@
 
 package com.zama.safeops.modules.hazards.domain.model
 
+import com.zama.safeops.modules.safety.domain.model.SafetyLocationType
 import java.time.Instant
 
 data class Hazard(
@@ -15,6 +16,8 @@ data class Hazard(
     val description: HazardDescription,
     val status: HazardStatus = HazardStatus.OPEN,
     val assignedTo: Long? = null,
+    val locationType: SafetyLocationType,
+    val locationId: Long,
     val createdAt: Instant = Instant.now(),
     val updatedAt: Instant = Instant.now()
 )

@@ -8,12 +8,10 @@
 package com.zama.safeops.modules.hazards.infrastructure.persistence.adapters
 
 import com.zama.safeops.modules.hazards.application.ports.HazardPort
-import com.zama.safeops.modules.hazards.domain.model.Hazard
-import com.zama.safeops.modules.hazards.domain.model.HazardDescription
-import com.zama.safeops.modules.hazards.domain.model.HazardId
-import com.zama.safeops.modules.hazards.domain.model.HazardTitle
+import com.zama.safeops.modules.hazards.domain.model.*
 import com.zama.safeops.modules.hazards.infrastructure.persistence.entities.HazardJpaEntity
 import com.zama.safeops.modules.hazards.infrastructure.persistence.repositories.HazardRepository
+import com.zama.safeops.modules.safety.domain.model.SafetyLocationType
 import org.springframework.stereotype.Component
 
 @Component
@@ -32,6 +30,15 @@ class HazardPersistenceAdapter(
 
     override fun update(hazard: Hazard): Hazard =
         repo.save(hazard.toEntity()).toDomain()
+
+    override fun findActive(limit: Int): List<Hazard> = repo.findAll()
+        .filter { it.status != HazardStatus.RESOLVED }
+        .sortedByDescending { it.createdAt }
+        .take(limit)
+        .map { it.toDomain() }
+
+    override fun findByLocation(type: SafetyLocationType, id: Long): List<Hazard> =
+        repo.findByLocationTypeAndLocationId(type, id).map { it.toDomain() }
 }
 
 private fun Hazard.toEntity() = HazardJpaEntity(
@@ -40,6 +47,8 @@ private fun Hazard.toEntity() = HazardJpaEntity(
     description = description.value,
     status = status,
     assignedTo = assignedTo,
+    locationType = locationType,
+    locationId = locationId,
     createdAt = createdAt,
     updatedAt = updatedAt
 )
@@ -50,6 +59,8 @@ private fun HazardJpaEntity.toDomain() = Hazard(
     description = HazardDescription(description),
     status = status,
     assignedTo = assignedTo,
+    locationType = locationType,
+    locationId = locationId,
     createdAt = createdAt,
     updatedAt = updatedAt
 )

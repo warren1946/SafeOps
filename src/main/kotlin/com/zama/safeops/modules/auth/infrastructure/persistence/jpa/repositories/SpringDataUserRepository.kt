@@ -14,4 +14,5 @@ import java.util.*
 interface SpringDataUserRepository : JpaRepository<UserJpaEntity, Long> {
     fun findByEmail(email: String): Optional<UserJpaEntity>
     fun existsByEmail(email: String): Boolean
+    fun countByEnabledTrue(): Int
 }
