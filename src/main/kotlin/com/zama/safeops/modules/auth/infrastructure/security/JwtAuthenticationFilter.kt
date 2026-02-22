@@ -20,14 +20,15 @@ import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
 
 @Component
-class JwtAuthenticationFilter(private val tokenService: TokenService, private val userPort: UserPort) : OncePerRequestFilter() {
+class JwtAuthenticationFilter(
+    private val tokenService: TokenService,
+    private val userPort: UserPort
+) : OncePerRequestFilter() {
 
-    override fun shouldNotFilter(request: HttpServletRequest): Boolean {
-        return request.servletPath.startsWith("/api/auth/")
-    }
+    override fun shouldNotFilter(request: HttpServletRequest): Boolean =
+        request.servletPath.startsWith("/api/auth/")
 
     override fun shouldNotFilterAsyncDispatch(): Boolean = true
-
     override fun shouldNotFilterErrorDispatch(): Boolean = true
 
     override fun doFilterInternal(
@@ -35,40 +36,29 @@ class JwtAuthenticationFilter(private val tokenService: TokenService, private va
         response: HttpServletResponse,
         filterChain: FilterChain
     ) {
-        // Hard skip guard
-        if (request.servletPath.startsWith("/api/auth/")) {
-            filterChain.doFilter(request, response)
-            return
-        }
-
         val header = request.getHeader("Authorization")
 
-        if (header == null || !header.startsWith("Bearer ")) {
-            filterChain.doFilter(request, response)
-            return
-        }
+        if (header?.startsWith("Bearer ") == true) {
+            val token = header.removePrefix("Bearer ").trim()
 
-        val token = header.removePrefix("Bearer ").trim()
+            try {
+                val userId = tokenService.parseUserIdFromAccessToken(token)
+                val user = userPort.findById(UserId(userId))
 
-        try {
-            val userId = tokenService.parseUserIdFromAccessToken(token)
-            val user = userPort.findById(UserId(userId))
+                if (user != null && SecurityContextHolder.getContext().authentication == null) {
+                    val authorities = user.roles.map { SimpleGrantedAuthority(it.name.value) }
 
-            if (user != null && SecurityContextHolder.getContext().authentication == null) {
-                val authorities = user.roles.map { SimpleGrantedAuthority(it.name.value) }
-
-                val auth = user.id?.let {
-                    UsernamePasswordAuthenticationToken(
-                        it.value,
+                    val authentication = UsernamePasswordAuthenticationToken(
+                        user.id!!.value,
                         null,
                         authorities
                     )
-                }
 
-                SecurityContextHolder.getContext().authentication = auth
+                    SecurityContextHolder.getContext().authentication = authentication
+                }
+            } catch (_: Exception) {
+                // Invalid token → ignore and continue
             }
-        } catch (ex: Exception) {
-            // ignore invalid token
         }
 
         filterChain.doFilter(request, response)

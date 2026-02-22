@@ -13,4 +13,5 @@ import java.util.*
 
 interface SpringDataRoleRepository : JpaRepository<RoleJpaEntity, Long> {
     fun findByName(name: String): Optional<RoleJpaEntity>
+    fun findByNameIn(names: Set<String>): List<RoleJpaEntity>
 }

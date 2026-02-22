@@ -45,3 +45,11 @@ data class UserResponse(
     val enabled: Boolean,
     val roles: Set<String>
 )
+
+data class UpdateUserStatusRequest(
+    val enabled: Boolean
+)
+
+data class UpdateUserRolesRequest(
+    val roles: Set<String>
+)

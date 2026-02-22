@@ -40,4 +40,7 @@ class UserJpaAdapter(
 
     override fun countActiveOfficers(): Int =
         repo.countByEnabledTrue()
+
+    override fun searchByEmail(query: String): List<User> =
+        repo.findByEmailContainingIgnoreCase(query).map { it.toDomain() }
 }

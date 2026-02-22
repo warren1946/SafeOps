@@ -7,12 +7,14 @@
 
 package com.zama.safeops.modules.dashboard.api.controllers
 
+import com.zama.safeops.modules.auth.infrastructure.rbac.RequiresRole
 import com.zama.safeops.modules.dashboard.api.dto.DashboardFilterRequest
 import com.zama.safeops.modules.dashboard.api.mappers.toResponse
 import com.zama.safeops.modules.dashboard.application.services.DashboardService
 import com.zama.safeops.modules.shared.api.ApiController
 import org.springframework.web.bind.annotation.*
 
+@RequiresRole("ADMIN", "OFFICER", "VIEWER")
 @RestController
 @RequestMapping("/api/dashboard")
 class DashboardController(

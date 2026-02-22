@@ -7,6 +7,7 @@
 
 package com.zama.safeops.modules.hazards.api.controllers
 
+import com.zama.safeops.modules.auth.infrastructure.rbac.RequiresRole
 import com.zama.safeops.modules.hazards.api.dto.AssignHazardRequest
 import com.zama.safeops.modules.hazards.api.dto.CreateHazardRequest
 import com.zama.safeops.modules.hazards.api.dto.UpdateHazardRequest
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/api/hazards")
 class HazardController(private val hazardService: HazardService) : ApiController() {
 
+    @RequiresRole("ADMIN", "OFFICER")
     @PostMapping
     fun create(@Valid @RequestBody req: CreateHazardRequest) = created(
         "Hazard created successfully",
@@ -31,6 +33,7 @@ class HazardController(private val hazardService: HazardService) : ApiController
         ).toResponse()
     )
 
+    @RequiresRole("ADMIN", "OFFICER", "VIEWER")
     @GetMapping
     fun list() = ok(
         "Hazards retrieved successfully",
@@ -43,6 +46,7 @@ class HazardController(private val hazardService: HazardService) : ApiController
         hazardService.get(id).toResponse()
     )
 
+    @RequiresRole("ADMIN", "OFFICER")
     @PutMapping("/{id}")
     fun update(@PathVariable id: Long, @Valid @RequestBody req: UpdateHazardRequest) = ok(
         "Hazard updated successfully",
