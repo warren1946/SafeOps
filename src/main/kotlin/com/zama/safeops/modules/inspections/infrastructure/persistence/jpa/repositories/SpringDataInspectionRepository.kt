@@ -8,6 +8,11 @@
 package com.zama.safeops.modules.inspections.infrastructure.persistence.jpa.repositories
 
 import com.zama.safeops.modules.inspections.infrastructure.persistence.jpa.entities.InspectionJpaEntity
+import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor
 
-interface SpringDataInspectionRepository : JpaRepository<InspectionJpaEntity, Long>
+interface SpringDataInspectionRepository : JpaRepository<InspectionJpaEntity, Long>, JpaSpecificationExecutor<InspectionJpaEntity> {
+    fun findTop10ByOrderByPerformedAtDesc(): List<InspectionJpaEntity>
+    fun findAllByOrderByCreatedAtDesc(pageable: Pageable): List<InspectionJpaEntity>
+}

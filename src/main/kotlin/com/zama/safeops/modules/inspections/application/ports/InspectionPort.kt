@@ -8,6 +8,7 @@
 package com.zama.safeops.modules.inspections.application.ports
 
 import com.zama.safeops.modules.inspections.domain.model.Inspection
+import com.zama.safeops.modules.inspections.domain.model.InspectionFilterCriteria
 import com.zama.safeops.modules.inspections.domain.valueobjects.InspectionId
 
 interface InspectionPort {
@@ -15,4 +16,6 @@ interface InspectionPort {
     fun update(inspection: Inspection): Inspection
     fun findById(id: InspectionId): Inspection?
     fun findAll(): List<Inspection>
+    fun findRecent(limit: Int = 10): List<Inspection>
+    fun filter(criteria: InspectionFilterCriteria): List<Inspection>
 }

@@ -16,8 +16,11 @@ import com.zama.safeops.modules.dashboard.domain.model.DashboardHazardSummary
 import com.zama.safeops.modules.dashboard.domain.model.DashboardSummary
 import com.zama.safeops.modules.hazards.application.ports.HazardPort
 import com.zama.safeops.modules.hazards.domain.model.HazardStatus
+import com.zama.safeops.modules.inspections.api.mappers.calculateScore
+import com.zama.safeops.modules.inspections.api.mappers.toSummaryResponse
 import com.zama.safeops.modules.inspections.application.ports.InspectionPort
 import com.zama.safeops.modules.inspections.domain.model.InspectionStatus
+import com.zama.safeops.modules.inspections.domain.model.InspectionSummaryResponse
 import com.zama.safeops.modules.safety.application.ports.SafetyAlertPort
 import com.zama.safeops.modules.safety.application.ports.SafetyEventPort
 import com.zama.safeops.modules.safety.domain.model.SafetyEventType
@@ -166,5 +169,13 @@ class DashboardService(
             FilterType.SHAFT -> locationType == SafetyLocationType.SHAFT && locationId == filter.id
             FilterType.SITE -> locationType == SafetyLocationType.SITE && locationId == filter.id
         }
+    }
+
+    fun getTopFailingInspections(limit: Int = 5): List<InspectionSummaryResponse> {
+        return inspectionPort.findRecent(50) // fetch recent 50
+            .map { it to it.calculateScore() }
+            .sortedBy { it.second.percentage } // lowest first
+            .take(limit)
+            .map { it.first.toSummaryResponse() }
     }
 }

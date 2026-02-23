@@ -7,9 +7,9 @@
 
 package com.zama.safeops.modules.inspections.api.dto
 
-import com.zama.safeops.modules.inspections.domain.model.InspectionItemStatus
-import com.zama.safeops.modules.inspections.domain.model.InspectionStatus
-import com.zama.safeops.modules.inspections.domain.model.InspectionTargetType
+import com.zama.safeops.modules.inspections.domain.model.*
+import com.zama.safeops.modules.safety.domain.model.SafetyLocationType
+import java.time.LocalDate
 
 data class CreateInspectionRequest(
     val title: String,
@@ -56,4 +56,16 @@ data class ApproveInspectionRequest(
 
 data class RejectInspectionRequest(
     val reviewerComments: String?
+)
+
+data class InspectionFilterRequest(
+    val status: InspectionStatus? = null,
+    val fromDate: LocalDate? = null,
+    val toDate: LocalDate? = null,
+    val officerId: Long? = null,
+    val locationType: SafetyLocationType? = null,
+    val locationId: Long? = null,
+    val search: String? = null,
+    val sortBy: InspectionSortField = InspectionSortField.DATE,
+    val direction: SortDirection = SortDirection.DESC
 )

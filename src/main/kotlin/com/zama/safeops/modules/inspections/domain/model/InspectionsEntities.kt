@@ -9,7 +9,9 @@ package com.zama.safeops.modules.inspections.domain.model
 
 import com.zama.safeops.modules.inspections.domain.valueobjects.InspectionId
 import com.zama.safeops.modules.inspections.domain.valueobjects.InspectionItemId
+import com.zama.safeops.modules.safety.domain.model.SafetyLocationType
 import java.time.Instant
+import java.time.LocalDate
 
 data class Inspection(
     val id: InspectionId? = null,
@@ -32,6 +34,49 @@ data class InspectionItem(
     val comment: String? = null,
     val createdAt: Instant = Instant.now()
 )
+
+data class InspectionScore(
+    val score: Int,
+    val maxScore: Int,
+    val percentage: Double
+)
+
+data class InspectionFilterCriteria(
+    val status: InspectionStatus? = null,
+    val fromDate: LocalDate? = null,
+    val toDate: LocalDate? = null,
+    val officerId: Long? = null,
+    val locationType: SafetyLocationType? = null,
+    val locationId: Long? = null,
+    val search: String? = null,
+    val sortBy: InspectionSortField = InspectionSortField.DATE,
+    val direction: SortDirection = SortDirection.DESC
+)
+
+data class InspectionSummaryResponse(
+    val id: Long,
+    val title: String,
+    val status: InspectionStatus,
+    val targetType: InspectionTargetType,
+    val targetId: Long,
+    val officerId: Long?,
+    val performedAt: Instant?,
+    val score: Int,
+    val maxScore: Int,
+    val percentage: Double
+)
+
+enum class InspectionSortField {
+    DATE,
+    SCORE,
+    STATUS,
+    OFFICER
+}
+
+enum class SortDirection {
+    ASC,
+    DESC
+}
 
 enum class InspectionStatus {
     DRAFT,

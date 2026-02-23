@@ -39,6 +39,12 @@ class DashboardController(
         dashboardService.getEventTrends().map { it.toResponse() }
     )
 
+    @GetMapping("/inspections/top-failing")
+    fun topFailing() = ok(
+        "Top failing inspections",
+        dashboardService.getTopFailingInspections()
+    )
+
     @PostMapping("/summary/filter")
     fun summaryFiltered(@RequestBody req: DashboardFilterRequest) = ok(
         "Filtered dashboard summary retrieved successfully",
