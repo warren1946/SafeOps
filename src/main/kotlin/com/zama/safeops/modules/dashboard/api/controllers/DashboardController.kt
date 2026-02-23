@@ -40,6 +40,7 @@ class DashboardController(
     )
 
     @GetMapping("/inspections/top-failing")
+    @RequiresRole("ADMIN", "OFFICER", "VIEWER")
     fun topFailing() = ok(
         "Top failing inspections",
         dashboardService.getTopFailingInspections()
@@ -61,5 +62,17 @@ class DashboardController(
     fun eventTrendsFiltered(@RequestBody req: DashboardFilterRequest) = ok(
         "Filtered event trends retrieved successfully",
         dashboardService.getEventTrendsFiltered(req).map { it.toResponse() }
+    )
+
+    @GetMapping("/inspections/score-trend")
+    fun scoreTrend() = ok(
+        "Inspection score trend",
+        dashboardService.getInspectionScoreTrend()
+    )
+
+    @GetMapping("/inspections/reviewer-comments")
+    fun reviewerComments() = ok(
+        "Reviewer comments summary",
+        dashboardService.getReviewerCommentsSummary()
     )
 }

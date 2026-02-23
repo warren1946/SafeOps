@@ -23,7 +23,8 @@ data class Inspection(
     val reviewerComments: String? = null,
     val status: InspectionStatus = InspectionStatus.DRAFT,
     val createdAt: Instant = Instant.now(),
-    val updatedAt: Instant = Instant.now()
+    val updatedAt: Instant = Instant.now(),
+    val items: List<InspectionItem> = emptyList()
 )
 
 data class InspectionItem(
@@ -50,7 +51,8 @@ data class InspectionFilterCriteria(
     val locationId: Long? = null,
     val search: String? = null,
     val sortBy: InspectionSortField = InspectionSortField.DATE,
-    val direction: SortDirection = SortDirection.DESC
+    val direction: SortDirection = SortDirection.DESC,
+    val onlyFailing: Boolean = false
 )
 
 data class InspectionSummaryResponse(
@@ -63,7 +65,8 @@ data class InspectionSummaryResponse(
     val performedAt: Instant?,
     val score: Int,
     val maxScore: Int,
-    val percentage: Double
+    val percentage: Double,
+    val completeness: Double
 )
 
 enum class InspectionSortField {

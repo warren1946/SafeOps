@@ -9,17 +9,18 @@ package com.zama.safeops.modules.inspections.application.services
 
 import com.zama.safeops.modules.dashboard.application.extensions.toSafetyLocationType
 import com.zama.safeops.modules.inspections.api.mappers.calculateScore
+import com.zama.safeops.modules.inspections.application.ports.InspectionItemPort
 import com.zama.safeops.modules.inspections.application.ports.InspectionPort
-import com.zama.safeops.modules.inspections.domain.model.Inspection
-import com.zama.safeops.modules.inspections.domain.model.InspectionFilterCriteria
-import com.zama.safeops.modules.inspections.domain.model.InspectionSortField
-import com.zama.safeops.modules.inspections.domain.model.SortDirection
+import com.zama.safeops.modules.inspections.domain.model.*
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.ZoneOffset
 
 @Service
-class InspectionQueryService(private val inspectionPort: InspectionPort) {
+class InspectionQueryService(
+    private val inspectionPort: InspectionPort,
+    private val inspectionItemPort: InspectionItemPort
+) {
 
     @Transactional(readOnly = true)
     fun getFiltered(criteria: InspectionFilterCriteria): List<Inspection> {
@@ -31,8 +32,11 @@ class InspectionQueryService(private val inspectionPort: InspectionPort) {
             .filter { matchesOfficer(criteria, it) }
             .filter { matchesLocation(criteria, it) }
             .filter { matchesSearch(criteria, it) }
+            .filter { matchesFailingFlag(criteria, it) }
 
-        return sort(criteria, filtered)
+        val sorted = sort(criteria, filtered)
+
+        return attachItems(sorted)
     }
 
     private fun matchesStatus(c: InspectionFilterCriteria, i: Inspection): Boolean =
@@ -47,7 +51,8 @@ class InspectionQueryService(private val inspectionPort: InspectionPort) {
         return true
     }
 
-    private fun matchesOfficer(c: InspectionFilterCriteria, i: Inspection): Boolean = c.officerId?.let { it == i.inspectorId } ?: true
+    private fun matchesOfficer(c: InspectionFilterCriteria, i: Inspection): Boolean =
+        c.officerId?.let { it == i.inspectorId } ?: true
 
     private fun matchesLocation(c: InspectionFilterCriteria, i: Inspection): Boolean {
         if (c.locationType == null && c.locationId == null) return true
@@ -65,9 +70,7 @@ class InspectionQueryService(private val inspectionPort: InspectionPort) {
         val q = c.search?.trim()?.lowercase() ?: return true
         if (q.isBlank()) return true
 
-        val title = i.title.lowercase()
-
-        return title.contains(q)
+        return i.title.lowercase().contains(q)
     }
 
     private fun sort(c: InspectionFilterCriteria, list: List<Inspection>): List<Inspection> {
@@ -86,7 +89,18 @@ class InspectionQueryService(private val inspectionPort: InspectionPort) {
         }
 
         val sorted = list.sortedWith(comparator)
-
         return if (c.direction == SortDirection.ASC) sorted else sorted.reversed()
+    }
+
+    fun attachItems(inspection: Inspection): Inspection {
+        val items = inspectionItemPort.findByInspectionId(inspection.id!!)
+        return inspection.copy(items = items)
+    }
+
+    fun attachItems(inspections: List<Inspection>): List<Inspection> = inspections.map { attachItems(it) }
+
+    private fun matchesFailingFlag(c: InspectionFilterCriteria, i: Inspection): Boolean {
+        if (!c.onlyFailing) return true
+        return i.items.any { it.status == InspectionItemStatus.FAIL }
     }
 }

@@ -10,6 +10,8 @@ package com.zama.safeops.modules.inspections.application.ports
 import com.zama.safeops.modules.inspections.domain.model.Inspection
 import com.zama.safeops.modules.inspections.domain.model.InspectionFilterCriteria
 import com.zama.safeops.modules.inspections.domain.valueobjects.InspectionId
+import org.springframework.data.domain.Pageable
+import java.time.Instant
 
 interface InspectionPort {
     fun create(inspection: Inspection): Inspection
@@ -18,4 +20,5 @@ interface InspectionPort {
     fun findAll(): List<Inspection>
     fun findRecent(limit: Int = 10): List<Inspection>
     fun filter(criteria: InspectionFilterCriteria): List<Inspection>
+    fun findSince(since: Instant, pageable: Pageable): List<Inspection>
 }

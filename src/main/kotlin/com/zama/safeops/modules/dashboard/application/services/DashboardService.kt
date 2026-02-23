@@ -11,24 +11,26 @@ import com.zama.safeops.modules.auth.application.ports.UserPort
 import com.zama.safeops.modules.dashboard.api.dto.DashboardFilterRequest
 import com.zama.safeops.modules.dashboard.api.dto.FilterType
 import com.zama.safeops.modules.dashboard.application.extensions.toSafetyLocationType
-import com.zama.safeops.modules.dashboard.domain.model.DashboardEventTrendPoint
-import com.zama.safeops.modules.dashboard.domain.model.DashboardHazardSummary
-import com.zama.safeops.modules.dashboard.domain.model.DashboardSummary
+import com.zama.safeops.modules.dashboard.domain.model.*
 import com.zama.safeops.modules.hazards.application.ports.HazardPort
 import com.zama.safeops.modules.hazards.domain.model.HazardStatus
 import com.zama.safeops.modules.inspections.api.mappers.calculateScore
 import com.zama.safeops.modules.inspections.api.mappers.toSummaryResponse
 import com.zama.safeops.modules.inspections.application.ports.InspectionPort
+import com.zama.safeops.modules.inspections.application.services.InspectionQueryService
 import com.zama.safeops.modules.inspections.domain.model.InspectionStatus
 import com.zama.safeops.modules.inspections.domain.model.InspectionSummaryResponse
 import com.zama.safeops.modules.safety.application.ports.SafetyAlertPort
 import com.zama.safeops.modules.safety.application.ports.SafetyEventPort
 import com.zama.safeops.modules.safety.domain.model.SafetyEventType
 import com.zama.safeops.modules.safety.domain.model.SafetyLocationType
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
 import java.time.ZoneOffset
+import java.time.temporal.ChronoUnit
 
 @Service
 class DashboardService(
@@ -36,7 +38,8 @@ class DashboardService(
     private val eventPort: SafetyEventPort,
     private val inspectionPort: InspectionPort,
     private val alertPort: SafetyAlertPort,
-    private val userPort: UserPort
+    private val userPort: UserPort,
+    private val inspectionQueryService: InspectionQueryService
 ) {
 
     @Transactional(readOnly = true)
@@ -172,10 +175,47 @@ class DashboardService(
     }
 
     fun getTopFailingInspections(limit: Int = 5): List<InspectionSummaryResponse> {
-        return inspectionPort.findRecent(50) // fetch recent 50
+        val recent = inspectionPort.findRecent(50)
+        val withItems = inspectionQueryService.attachItems(recent)
+
+        return withItems
             .map { it to it.calculateScore() }
-            .sortedBy { it.second.percentage } // lowest first
+            .sortedBy { it.second.percentage }
             .take(limit)
             .map { it.first.toSummaryResponse() }
+    }
+
+    fun getInspectionScoreTrend(days: Long = 30): List<ScoreTrendPoint> {
+        val since = Instant.now().minus(days, ChronoUnit.DAYS)
+        val recent = inspectionPort.findSince(since, PageRequest.of(0, 200, Sort.by("createdAt").descending()))
+        val withItems = inspectionQueryService.attachItems(recent)
+
+        return withItems
+            .groupBy { it.createdAt.atZone(ZoneOffset.UTC).toLocalDate() }
+            .map { (date, inspections) ->
+                val scores = inspections.map { it.calculateScore().percentage }
+                ScoreTrendPoint(
+                    date = date,
+                    averageScore = if (scores.isEmpty()) 0.0 else scores.average()
+                )
+            }
+            .sortedBy { it.date }
+    }
+
+    fun getReviewerCommentsSummary(limit: Int = 10): List<ReviewerCommentSummary> {
+        val recent = inspectionPort.findRecent(100)
+        return recent
+            .filter { !it.reviewerComments.isNullOrBlank() }
+            .sortedByDescending { it.updatedAt }
+            .take(limit)
+            .map {
+                ReviewerCommentSummary(
+                    inspectionId = it.id!!.value,
+                    title = it.title,
+                    reviewerId = it.assignedReviewerId,
+                    comment = it.reviewerComments!!,
+                    updatedAt = it.updatedAt
+                )
+            }
     }
 }

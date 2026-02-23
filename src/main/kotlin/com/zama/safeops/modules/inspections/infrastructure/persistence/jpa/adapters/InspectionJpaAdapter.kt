@@ -17,9 +17,11 @@ import com.zama.safeops.modules.inspections.infrastructure.persistence.jpa.entit
 import com.zama.safeops.modules.inspections.infrastructure.persistence.jpa.repositories.SpringDataInspectionRepository
 import com.zama.safeops.modules.inspections.infrastructure.persistence.jpa.specs.InspectionSpecifications
 import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.data.jpa.domain.Specification
 import org.springframework.stereotype.Component
+import java.time.Instant
 import java.time.ZoneOffset
 
 @Component
@@ -76,6 +78,9 @@ class InspectionJpaAdapter(
 
         return repo.findAll(spec, sort).map { it.toDomain() }
     }
+
+    override fun findSince(since: Instant, pageable: Pageable): List<Inspection> =
+        repo.findByCreatedAtAfter(since, pageable).map { it.toDomain() }
 }
 
 private fun Inspection.toEntity() = InspectionJpaEntity(

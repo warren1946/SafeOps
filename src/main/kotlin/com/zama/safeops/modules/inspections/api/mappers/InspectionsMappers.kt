@@ -9,10 +9,7 @@ package com.zama.safeops.modules.inspections.api.mappers
 
 import com.zama.safeops.modules.inspections.api.dto.InspectionItemResponse
 import com.zama.safeops.modules.inspections.api.dto.InspectionResponse
-import com.zama.safeops.modules.inspections.domain.model.Inspection
-import com.zama.safeops.modules.inspections.domain.model.InspectionItem
-import com.zama.safeops.modules.inspections.domain.model.InspectionScore
-import com.zama.safeops.modules.inspections.domain.model.InspectionSummaryResponse
+import com.zama.safeops.modules.inspections.domain.model.*
 import com.zama.safeops.modules.inspections.domain.valueobjects.InspectionId
 
 fun Inspection.toResponse(items: List<InspectionItem>) = InspectionResponse(
@@ -38,41 +35,40 @@ fun InspectionItem.toResponse() = InspectionItemResponse(
 )
 
 fun Inspection.calculateScore(): InspectionScore {
-    /*val items = this.items
-    if (items.isEmpty()) {
-        return InspectionScore(score = 0, maxScore = 0, percentage = 0.0)
+    val relevant = items.filter { it.status != InspectionItemStatus.NOT_APPLICABLE }
+
+    if (relevant.isEmpty()) {
+        return InspectionScore(0, 0, 0.0)
     }
 
-    val maxScore = items.size
-    val score = items.count { it.isCompliant }
-    val percentage = (score.toDouble() / maxScore.toDouble()) * 100.0
+    val max = relevant.size
+    val score = relevant.count { it.status == InspectionItemStatus.PASS }
+    val pct = (score.toDouble() / max.toDouble()) * 100.0
 
-    return InspectionScore(
-        score = score,
-        maxScore = maxScore,
-        percentage = percentage
-    )*/
-    return InspectionScore(
-        score = 0,
-        maxScore = 0,
-        percentage = 0.0
-    )
+    return InspectionScore(score, max, pct)
 }
 
 fun Inspection.toSummaryResponse(): InspectionSummaryResponse {
+    val score = calculateScore()
+
     return InspectionSummaryResponse(
-        id = this.id!!.value,
-        title = this.title,
-        status = this.status,
-        targetType = this.targetType,
-        targetId = this.targetId,
-        officerId = this.inspectorId,
-        performedAt = this.createdAt, // or updatedAt if you prefer
-        score = 0,        // placeholder until InspectionItems exist
-        maxScore = 0,     // placeholder
-        percentage = 0.0  // placeholder
+        id = id!!.value,
+        title = title,
+        status = status,
+        targetType = targetType,
+        targetId = targetId,
+        officerId = inspectorId,
+        performedAt = createdAt,
+        score = score.score,
+        maxScore = score.maxScore,
+        percentage = score.percentage,
+        completeness = this.completenessPercentage()
     )
 }
 
+fun Inspection.completenessPercentage(): Double {
+    if (items.isEmpty()) return 0.0
+    return (items.size.toDouble() / items.size.toDouble()) * 100.0
+}
 
 fun Long.toInspectionId() = InspectionId(this)

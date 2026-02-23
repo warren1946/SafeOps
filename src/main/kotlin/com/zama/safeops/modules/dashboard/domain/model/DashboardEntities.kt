@@ -35,3 +35,16 @@ data class DashboardSummary(
     val recentEventCount: Int,
     val activeOfficerCount: Int
 )
+
+data class ScoreTrendPoint(
+    val date: LocalDate,
+    val averageScore: Double
+)
+
+data class ReviewerCommentSummary(
+    val inspectionId: Long,
+    val title: String,
+    val reviewerId: Long?,
+    val comment: String,
+    val updatedAt: Instant
+)
