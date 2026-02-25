@@ -7,8 +7,12 @@
 
 package com.zama.safeops.modules.inspections.api.dto
 
-import com.zama.safeops.modules.inspections.domain.model.*
+import com.zama.safeops.modules.inspections.domain.model.InspectionItemStatus
+import com.zama.safeops.modules.inspections.domain.model.InspectionSortField
+import com.zama.safeops.modules.inspections.domain.model.InspectionStatus
+import com.zama.safeops.modules.inspections.domain.model.InspectionTargetType
 import com.zama.safeops.modules.safety.domain.model.SafetyLocationType
+import com.zama.safeops.modules.shared.entities.SortDirection
 import java.time.LocalDate
 
 data class CreateInspectionRequest(

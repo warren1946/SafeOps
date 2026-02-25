@@ -7,6 +7,8 @@
 
 package com.zama.safeops.modules.hazards.infrastructure.persistence.entities
 
+import com.zama.safeops.modules.hazards.domain.model.HazardPriority
+import com.zama.safeops.modules.hazards.domain.model.HazardSeverity
 import com.zama.safeops.modules.hazards.domain.model.HazardStatus
 import com.zama.safeops.modules.safety.domain.model.SafetyLocationType
 import jakarta.persistence.*
@@ -28,9 +30,19 @@ class HazardJpaEntity(
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    val severity: HazardSeverity,
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    val priority: HazardPriority,
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     val status: HazardStatus,
 
     val assignedTo: Long? = null,
+
+    val createdBy: Long? = null,
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -38,6 +50,10 @@ class HazardJpaEntity(
 
     @Column(nullable = false)
     val locationId: Long,
+
+    val dueDate: Instant? = null,
+
+    val resolvedAt: Instant? = null,
 
     @Column(nullable = false)
     val createdAt: Instant,

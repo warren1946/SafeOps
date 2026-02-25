@@ -11,13 +11,18 @@ import com.zama.safeops.modules.hazards.api.dto.HazardResponse
 import com.zama.safeops.modules.hazards.domain.model.Hazard
 
 fun Hazard.toResponse() = HazardResponse(
-    id = id?.value ?: error("Hazard ID must not be null"),
+    id = id!!.value,
     title = title.value,
     description = description.value,
+    severity = severity,
+    priority = priority,
     status = status.name,
     assignedTo = assignedTo,
+    createdBy = createdBy,
     locationType = locationType,
     locationId = locationId,
+    dueDate = dueDate?.toString(),
+    resolvedAt = resolvedAt?.toString(),
     createdAt = createdAt.toString(),
     updatedAt = updatedAt.toString()
 )

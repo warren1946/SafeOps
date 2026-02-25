@@ -14,13 +14,19 @@ data class Hazard(
     val id: HazardId? = null,
     val title: HazardTitle,
     val description: HazardDescription,
+    val severity: HazardSeverity = HazardSeverity.MEDIUM,
+    val priority: HazardPriority = HazardPriority.P3,
     val status: HazardStatus = HazardStatus.OPEN,
     val assignedTo: Long? = null,
+    val createdBy: Long? = null,
     val locationType: SafetyLocationType,
     val locationId: Long,
+    val dueDate: Instant? = null,
+    val resolvedAt: Instant? = null,
     val createdAt: Instant = Instant.now(),
     val updatedAt: Instant = Instant.now()
 )
+
 
 @JvmInline
 value class HazardId(val value: Long)
@@ -35,4 +41,18 @@ enum class HazardStatus {
     OPEN,
     IN_PROGRESS,
     RESOLVED
+}
+
+enum class HazardSeverity {
+    LOW,
+    MEDIUM,
+    HIGH,
+    CRITICAL
+}
+
+enum class HazardPriority {
+    P1,
+    P2,
+    P3,
+    P4
 }

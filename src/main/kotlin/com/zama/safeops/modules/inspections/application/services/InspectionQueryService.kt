@@ -11,7 +11,11 @@ import com.zama.safeops.modules.dashboard.application.extensions.toSafetyLocatio
 import com.zama.safeops.modules.inspections.api.mappers.calculateScore
 import com.zama.safeops.modules.inspections.application.ports.InspectionItemPort
 import com.zama.safeops.modules.inspections.application.ports.InspectionPort
-import com.zama.safeops.modules.inspections.domain.model.*
+import com.zama.safeops.modules.inspections.domain.model.Inspection
+import com.zama.safeops.modules.inspections.domain.model.InspectionFilterCriteria
+import com.zama.safeops.modules.inspections.domain.model.InspectionItemStatus
+import com.zama.safeops.modules.inspections.domain.model.InspectionSortField
+import com.zama.safeops.modules.shared.entities.SortDirection
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.ZoneOffset

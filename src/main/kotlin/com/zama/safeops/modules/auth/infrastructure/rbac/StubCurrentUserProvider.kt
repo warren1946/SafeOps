@@ -10,8 +10,10 @@ package com.zama.safeops.modules.auth.infrastructure.rbac
 import com.zama.safeops.modules.auth.application.ports.UserPort
 import com.zama.safeops.modules.auth.domain.model.User
 import com.zama.safeops.modules.auth.domain.valueobjects.UserId
+import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
 
+@Profile("dev")
 @Component
 class StubCurrentUserProvider(
     private val userPort: UserPort

@@ -10,6 +10,7 @@ package com.zama.safeops.modules.inspections.domain.model
 import com.zama.safeops.modules.inspections.domain.valueobjects.InspectionId
 import com.zama.safeops.modules.inspections.domain.valueobjects.InspectionItemId
 import com.zama.safeops.modules.safety.domain.model.SafetyLocationType
+import com.zama.safeops.modules.shared.entities.SortDirection
 import java.time.Instant
 import java.time.LocalDate
 
@@ -74,11 +75,6 @@ enum class InspectionSortField {
     SCORE,
     STATUS,
     OFFICER
-}
-
-enum class SortDirection {
-    ASC,
-    DESC
 }
 
 enum class InspectionStatus {

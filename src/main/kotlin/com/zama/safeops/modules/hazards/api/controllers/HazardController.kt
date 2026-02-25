@@ -10,8 +10,10 @@ package com.zama.safeops.modules.hazards.api.controllers
 import com.zama.safeops.modules.auth.infrastructure.rbac.RequiresRole
 import com.zama.safeops.modules.hazards.api.dto.AssignHazardRequest
 import com.zama.safeops.modules.hazards.api.dto.CreateHazardRequest
+import com.zama.safeops.modules.hazards.api.dto.HazardFilterCriteria
 import com.zama.safeops.modules.hazards.api.dto.UpdateHazardRequest
 import com.zama.safeops.modules.hazards.api.mappers.toResponse
+import com.zama.safeops.modules.hazards.application.services.HazardQueryService
 import com.zama.safeops.modules.hazards.application.services.HazardService
 import com.zama.safeops.modules.shared.api.ApiController
 import jakarta.validation.Valid
@@ -19,18 +21,13 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/hazards")
-class HazardController(private val hazardService: HazardService) : ApiController() {
+class HazardController(private val hazardService: HazardService, private val hazardQueryService: HazardQueryService) : ApiController() {
 
     @RequiresRole("ADMIN", "OFFICER")
     @PostMapping
     fun create(@Valid @RequestBody req: CreateHazardRequest) = created(
         "Hazard created successfully",
-        hazardService.create(
-            req.title,
-            req.description,
-            req.locationType,
-            req.locationId
-        ).toResponse()
+        hazardService.create(req, currentUserId()).toResponse()
     )
 
     @RequiresRole("ADMIN", "OFFICER", "VIEWER")
@@ -69,5 +66,12 @@ class HazardController(private val hazardService: HazardService) : ApiController
     fun assign(@PathVariable id: Long, @Valid @RequestBody req: AssignHazardRequest) = ok(
         "Hazard assigned successfully",
         hazardService.assign(id, req.userId).toResponse()
+    )
+
+    @PostMapping("/filter")
+    @RequiresRole("ADMIN", "OFFICER", "VIEWER")
+    fun filter(@RequestBody criteria: HazardFilterCriteria) = ok(
+        "Filtered hazards",
+        hazardQueryService.getFiltered(criteria).map { it.toResponse() }
     )
 }

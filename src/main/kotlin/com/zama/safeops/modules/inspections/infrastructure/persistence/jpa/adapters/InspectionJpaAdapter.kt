@@ -11,11 +11,11 @@ import com.zama.safeops.modules.inspections.application.ports.InspectionPort
 import com.zama.safeops.modules.inspections.domain.model.Inspection
 import com.zama.safeops.modules.inspections.domain.model.InspectionFilterCriteria
 import com.zama.safeops.modules.inspections.domain.model.InspectionSortField
-import com.zama.safeops.modules.inspections.domain.model.SortDirection
 import com.zama.safeops.modules.inspections.domain.valueobjects.InspectionId
 import com.zama.safeops.modules.inspections.infrastructure.persistence.jpa.entities.InspectionJpaEntity
 import com.zama.safeops.modules.inspections.infrastructure.persistence.jpa.repositories.SpringDataInspectionRepository
 import com.zama.safeops.modules.inspections.infrastructure.persistence.jpa.specs.InspectionSpecifications
+import com.zama.safeops.modules.shared.entities.SortDirection
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
