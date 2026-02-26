@@ -27,6 +27,7 @@ import com.zama.safeops.modules.inspections.domain.model.InspectionItem
 import com.zama.safeops.modules.inspections.domain.model.InspectionStatus
 import com.zama.safeops.modules.inspections.domain.model.InspectionTargetType
 import com.zama.safeops.modules.inspections.domain.valueobjects.InspectionId
+import com.zama.safeops.modules.templates.application.services.TemplateService
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
@@ -38,7 +39,8 @@ class InspectionService(
     private val areaPort: AreaPort,
     private val shaftPort: ShaftPort,
     private val sitePort: SitePort,
-    private val userPort: UserPort
+    private val userPort: UserPort,
+    private val templateService: TemplateService
 ) {
 
     @Transactional
@@ -54,6 +56,7 @@ class InspectionService(
             inspectorId = req.inspectorId
         )
 
+        templateService.trackUsage(req.templateId)
         return inspectionPort.create(inspection)
     }
 

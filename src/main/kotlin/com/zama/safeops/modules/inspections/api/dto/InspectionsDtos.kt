@@ -19,7 +19,8 @@ data class CreateInspectionRequest(
     val title: String,
     val targetType: InspectionTargetType,
     val targetId: Long,
-    val inspectorId: Long
+    val inspectorId: Long,
+    val templateId: Long
 )
 
 data class AddInspectionItemRequest(
