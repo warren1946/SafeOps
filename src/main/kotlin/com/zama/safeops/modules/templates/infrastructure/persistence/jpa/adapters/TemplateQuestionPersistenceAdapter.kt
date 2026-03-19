@@ -7,6 +7,8 @@
 
 package com.zama.safeops.modules.templates.infrastructure.persistence.jpa.adapters
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import com.zama.safeops.modules.templates.application.ports.TemplateQuestionPort
 import com.zama.safeops.modules.templates.domain.model.QuestionText
 import com.zama.safeops.modules.templates.domain.model.TemplateId
@@ -15,8 +17,6 @@ import com.zama.safeops.modules.templates.domain.model.TemplateQuestionId
 import com.zama.safeops.modules.templates.infrastructure.persistence.jpa.entities.TemplateQuestionJpaEntity
 import com.zama.safeops.modules.templates.infrastructure.persistence.jpa.repositories.TemplateQuestionRepository
 import org.springframework.stereotype.Component
-import tools.jackson.module.kotlin.jacksonObjectMapper
-import tools.jackson.module.kotlin.readValue
 
 @Component
 class TemplateQuestionPersistenceAdapter(

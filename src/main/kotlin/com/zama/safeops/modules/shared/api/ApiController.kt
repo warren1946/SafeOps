@@ -29,4 +29,24 @@ open class ApiController {
     protected fun currentUser() =
         currentUserProvider.getCurrentUser()
             ?: throw IllegalStateException("No authenticated user found")
+
+    protected fun <T> paged(
+        data: List<T>,
+        total: Long,
+        page: Int = 1,
+        size: Int = 20
+    ): ResponseEntity<PagedResponse<T>> {
+        val totalPages = if (total == 0L) 1 else ((total + size - 1) / size).toInt()
+        return ResponseEntity.ok(
+            PagedResponse(
+                success = true,
+                message = "Data retrieved successfully",
+                data = data,
+                page = page,
+                size = size,
+                total = total,
+                totalPages = totalPages
+            )
+        )
+    }
 }
