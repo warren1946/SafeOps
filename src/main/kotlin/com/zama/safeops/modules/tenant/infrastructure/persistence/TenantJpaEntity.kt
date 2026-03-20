@@ -58,7 +58,7 @@ class TenantJpaEntity(
     var timeFormat: String = "HH:mm",
 
     // Feature flags
-    @Column(nullable = false)
+    @Column(name = "feature_whatsapp", nullable = false)
     var featureWhatsApp: Boolean = true,
 
     @Column(nullable = false)
@@ -108,7 +108,7 @@ class TenantJpaEntity(
     @Column(nullable = false)
     var pushEnabled: Boolean = true,
 
-    @Column(nullable = false)
+    @Column(name = "whatsapp_enabled", nullable = false)
     var whatsAppEnabled: Boolean = true,
 
     // Branding
