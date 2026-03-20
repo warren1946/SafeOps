@@ -44,8 +44,8 @@ class TenantJpaEntity(
     var defaultLanguage: String = "en",
 
     @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "tenant_languages", joinColumns = [JoinColumn(name = "tenant_id")])
-    @Column(name = "language_code")
+    @CollectionTable(name = "tenant_languages", joinColumns = [JoinColumn(name = "tenant_id", nullable = false)])
+    @Column(name = "language_code", nullable = false)
     var supportedLanguages: MutableSet<String> = mutableSetOf("en"),
 
     @Column(nullable = false, length = 50)

@@ -45,11 +45,11 @@ class HazardJpaEntity(
     val createdBy: Long? = null,
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    val locationType: SafetyLocationType,
+    @Column(nullable = true)
+    val locationType: SafetyLocationType?,
 
-    @Column(nullable = false)
-    val locationId: Long,
+    @Column(nullable = true)
+    val locationId: Long?,
 
     val dueDate: Instant? = null,
 

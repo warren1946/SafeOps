@@ -64,8 +64,8 @@ class HazardService(
         id: Long,
         title: String,
         description: String,
-        locationType: SafetyLocationType,
-        locationId: Long
+        locationType: SafetyLocationType?,
+        locationId: Long?
     ): Hazard {
         validateTitle(title)
         validateDescription(description)
@@ -123,7 +123,10 @@ class HazardService(
         }
     }
 
-    private fun validateLocation(type: SafetyLocationType, id: Long) {
+    private fun validateLocation(type: SafetyLocationType?, id: Long?) {
+        if (type == null || id == null) {
+            throw HazardInvalidInputException("Location type and ID are required")
+        }
         if (id <= 0) {
             throw HazardInvalidInputException("Invalid locationId: $id")
         }

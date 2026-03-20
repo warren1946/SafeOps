@@ -20,8 +20,8 @@ data class CreateHazardRequest(
     val severity: HazardSeverity = HazardSeverity.MEDIUM,
     val priority: HazardPriority? = null, // optional override
     val dueDate: Instant? = null,
-    val locationType: SafetyLocationType,
-    val locationId: Long
+    val locationType: SafetyLocationType? = null,
+    val locationId: Long? = null
 )
 
 data class UpdateHazardRequest(
@@ -30,8 +30,8 @@ data class UpdateHazardRequest(
     val severity: HazardSeverity,
     val priority: HazardPriority?,
     val dueDate: Instant?,
-    val locationType: SafetyLocationType,
-    val locationId: Long
+    val locationType: SafetyLocationType? = null,
+    val locationId: Long? = null
 )
 
 data class AssignHazardRequest(
@@ -47,8 +47,8 @@ data class HazardResponse(
     val status: String,
     val assignedTo: Long?,
     val createdBy: Long?,
-    val locationType: SafetyLocationType,
-    val locationId: Long,
+    val locationType: SafetyLocationType?,
+    val locationId: Long?,
     val dueDate: String?,
     val resolvedAt: String?,
     val createdAt: String,
