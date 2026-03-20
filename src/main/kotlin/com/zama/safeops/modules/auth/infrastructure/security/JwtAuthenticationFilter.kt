@@ -27,7 +27,12 @@ class JwtAuthenticationFilter(
 
     override fun shouldNotFilter(request: HttpServletRequest): Boolean =
         request.servletPath.startsWith("/api/auth/") ||
-                request.servletPath.startsWith("/api/v1/auth/")
+                request.servletPath.startsWith("/api/v1/auth/") ||
+                request.servletPath.startsWith("/swagger-ui") ||
+                request.servletPath.startsWith("/v3/api-docs") ||
+                request.servletPath.startsWith("/webjars") ||
+                request.servletPath == "/health" ||
+                request.servletPath.startsWith("/actuator/health")
 
     override fun shouldNotFilterAsyncDispatch(): Boolean = true
     override fun shouldNotFilterErrorDispatch(): Boolean = true

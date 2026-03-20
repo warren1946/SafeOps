@@ -123,8 +123,6 @@ springdoc:
     operationsSorter: method
     tagsSorter: alpha
     display-request-duration: true
-    config-url: /v3/api-docs/swagger-config
-    url: /v3/api-docs
-  show-actuator: true
-  default-produces-media-type: application/json
-  default-consumes-media-type: application/json
+  show-actuator: false
+  packages-to-scan: com.zama.safeops.modules
+  paths-to-match: /api/**, /health, /actuator/**

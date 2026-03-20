@@ -41,7 +41,8 @@ class SecurityConfig(
                 auth
                     .requestMatchers("/health", "/actuator/health").permitAll()
                     .requestMatchers("/api/v1/auth/**", "/api/auth/**").permitAll()
-                    .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                    // Swagger/OpenAPI - permit all for documentation access
+                    .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/webjars/**").permitAll()
                     .requestMatchers("/api/core/**").hasAnyRole("ADMIN", "SUPERVISOR")
                     .anyRequest().authenticated()
             }
