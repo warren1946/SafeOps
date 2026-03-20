@@ -30,6 +30,9 @@ class UserJpaEntity(
     @Column(nullable = false)
     private val enabled: Boolean = true,
 
+    @Column(name = "tenant_id", nullable = false)
+    private val tenantId: Long = 1,
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "user_role",
@@ -52,12 +55,13 @@ class UserJpaEntity(
     }
 
     companion object {
-        fun fromDomain(user: User): UserJpaEntity =
+        fun fromDomain(user: User, tenantId: Long = 1): UserJpaEntity =
             UserJpaEntity(
                 id = user.id?.value,
                 email = user.email.value,
                 passwordHash = user.password.value,
                 enabled = user.enabled,
+                tenantId = tenantId,
                 roles = user.roles.map { RoleJpaEntity.fromDomain(it) }.toSet()
             )
     }

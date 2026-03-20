@@ -42,5 +42,8 @@ class SafetyEventJpaEntity(
     val reporterId: Long,
 
     @Column(nullable = false)
-    val createdAt: Instant
+    val createdAt: Instant,
+
+    @Column(name = "tenant_id", nullable = false)
+    val tenantId: Long = 1
 )

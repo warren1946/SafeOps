@@ -46,5 +46,8 @@ class InspectionJpaEntity(
     val createdAt: Instant,
 
     @Column(nullable = false)
-    val updatedAt: Instant
+    val updatedAt: Instant,
+
+    @Column(name = "tenant_id", nullable = false)
+    val tenantId: Long = 1
 )

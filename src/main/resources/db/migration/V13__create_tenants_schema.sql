@@ -81,8 +81,8 @@ ALTER TABLE app_user ADD COLUMN tenant_id BIGINT DEFAULT 1 REFERENCES tenants(id
 CREATE INDEX idx_users_tenant ON app_user(tenant_id);
 
 -- Add tenant_id to mines table
-ALTER TABLE mines ADD COLUMN tenant_id BIGINT DEFAULT 1 REFERENCES tenants(id);
-CREATE INDEX idx_mines_tenant ON mines(tenant_id);
+ALTER TABLE mine ADD COLUMN tenant_id BIGINT DEFAULT 1 REFERENCES tenants(id);
+CREATE INDEX idx_mines_tenant ON mine(tenant_id);
 
 -- Add tenant_id to sites table (through mine relationship)
 -- Sites inherit tenant from their mine, no direct column needed
@@ -100,33 +100,8 @@ ALTER TABLE safety_events ADD COLUMN tenant_id BIGINT DEFAULT 1 REFERENCES tenan
 CREATE INDEX idx_safety_events_tenant ON safety_events(tenant_id);
 
 -- Add tenant_id to templates table
-ALTER TABLE inspection_templates ADD COLUMN tenant_id BIGINT DEFAULT 1 REFERENCES tenants(id);
-CREATE INDEX idx_templates_tenant ON inspection_templates(tenant_id);
-
--- ============================================================
--- Create audit log table
--- ============================================================
-
-CREATE TABLE audit_logs (
-    id BIGSERIAL PRIMARY KEY,
-    tenant_id BIGINT NOT NULL REFERENCES tenants(id),
-    user_id BIGINT REFERENCES app_user(id),
-    action VARCHAR(50) NOT NULL,
-    entity_type VARCHAR(100) NOT NULL,
-    entity_id VARCHAR(100),
-    old_value TEXT,
-    new_value TEXT,
-    metadata JSONB,
-    ip_address VARCHAR(45),
-    user_agent TEXT,
-    timestamp TIMESTAMP NOT NULL DEFAULT NOW()
-);
-
-CREATE INDEX idx_audit_logs_tenant ON audit_logs(tenant_id);
-CREATE INDEX idx_audit_logs_user ON audit_logs(user_id);
-CREATE INDEX idx_audit_logs_action ON audit_logs(action);
-CREATE INDEX idx_audit_logs_entity ON audit_logs(entity_type, entity_id);
-CREATE INDEX idx_audit_logs_timestamp ON audit_logs(timestamp);
+ALTER TABLE templates ADD COLUMN tenant_id BIGINT DEFAULT 1 REFERENCES tenants(id);
+CREATE INDEX idx_templates_tenant ON templates(tenant_id);
 
 -- ============================================================
 -- Create notifications table

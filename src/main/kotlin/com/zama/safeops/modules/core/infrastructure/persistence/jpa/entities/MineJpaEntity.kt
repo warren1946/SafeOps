@@ -25,7 +25,10 @@ class MineJpaEntity(
     private val name: String,
 
     @Column(nullable = false, unique = true)
-    private val code: String
+    private val code: String,
+
+    @Column(name = "tenant_id", nullable = false)
+    private val tenantId: Long = 1
 
 ) {
 
@@ -40,10 +43,11 @@ class MineJpaEntity(
     }
 
     companion object {
-        fun fromDomain(mine: Mine) = MineJpaEntity(
+        fun fromDomain(mine: Mine, tenantId: Long = 1) = MineJpaEntity(
             id = mine.id?.value,
             name = mine.name.value,
-            code = mine.code.value
+            code = mine.code.value,
+            tenantId = tenantId
         )
     }
 }
