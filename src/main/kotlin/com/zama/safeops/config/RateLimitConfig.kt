@@ -117,7 +117,7 @@ class RateLimitingInterceptor : HandlerInterceptor {
         return when {
             path.contains("/auth/") -> BucketType.AUTH
             path.contains("/ai/") || path.contains("/reports/generate") || path.contains("/export") -> BucketType.HEAVY
-            path.contains("/public/") || path.contains("/health") -> BucketType.PUBLIC
+            path.contains("/public/") || path.contains("/health") || path.contains("/swagger-ui") || path.contains("/v3/api-docs") -> BucketType.PUBLIC
             else -> BucketType.GENERAL
         }
     }

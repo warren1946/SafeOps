@@ -25,16 +25,19 @@ class WebMvcConfig(
         // Rate limiting should be first
         registry.addInterceptor(rateLimitingInterceptor)
             .addPathPatterns("/api/**")
+            .excludePathPatterns("/swagger-ui/**", "/v3/api-docs/**")
             .order(0)
 
         // Logging interceptor
         registry.addInterceptor(loggingInterceptor)
             .addPathPatterns("/api/**")
+            .excludePathPatterns("/swagger-ui/**", "/v3/api-docs/**")
             .order(1)
 
         // RBAC interceptor
         registry.addInterceptor(roleBasedAccessInterceptor)
             .addPathPatterns("/api/**")
+            .excludePathPatterns("/swagger-ui/**", "/v3/api-docs/**")
             .order(2)
     }
 
