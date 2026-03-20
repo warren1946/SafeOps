@@ -26,7 +26,8 @@ class JwtAuthenticationFilter(
 ) : OncePerRequestFilter() {
 
     override fun shouldNotFilter(request: HttpServletRequest): Boolean =
-        request.servletPath.startsWith("/api/auth/")
+        request.servletPath.startsWith("/api/auth/") ||
+                request.servletPath.startsWith("/api/v1/auth/")
 
     override fun shouldNotFilterAsyncDispatch(): Boolean = true
     override fun shouldNotFilterErrorDispatch(): Boolean = true
