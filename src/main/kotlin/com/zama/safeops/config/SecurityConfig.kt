@@ -40,8 +40,9 @@ class SecurityConfig(
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .authorizeHttpRequests { auth ->
                 auth
-                    .requestMatchers("/health").permitAll()
-                    .requestMatchers("/api/auth/**").permitAll()
+                    .requestMatchers("/health", "/actuator/health").permitAll()
+                    .requestMatchers("/api/v1/auth/**", "/api/auth/**").permitAll()
+                    .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                     .requestMatchers("/api/core/**").hasAnyRole("ADMIN", "SUPERVISOR")
                     .anyRequest().authenticated()
             }
