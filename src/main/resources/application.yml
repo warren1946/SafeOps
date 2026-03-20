@@ -47,11 +47,7 @@ spring:
         size: 10
 
   jackson:
-    serialization:
-      write-dates-as-timestamps: false
-      indent-output: false
-    deserialization:
-      fail-on-unknown-properties: false
+    default-property-inclusion: non_null
 
 server:
   port: 8080
