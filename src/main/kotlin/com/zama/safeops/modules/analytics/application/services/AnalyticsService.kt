@@ -24,7 +24,7 @@ import java.util.*
 /**
  * Service for generating analytics, reports, and business intelligence.
  */
-@Service
+@Service("biAnalyticsService")
 class AnalyticsService(
     private val analyticsPort: AnalyticsPort,
     private val reportGenerator: ReportGenerator,
