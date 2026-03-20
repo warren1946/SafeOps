@@ -76,9 +76,9 @@ VALUES (1, 'default', 'Default Tenant', 'ACTIVE', 'ENTERPRISE', NOW(), 'en');
 -- Update existing tables to support multi-tenancy
 -- ============================================================
 
--- Add tenant_id to users table
-ALTER TABLE users ADD COLUMN tenant_id BIGINT DEFAULT 1 REFERENCES tenants(id);
-CREATE INDEX idx_users_tenant ON users(tenant_id);
+-- Add tenant_id to users table (app_user is the actual table name)
+ALTER TABLE app_user ADD COLUMN tenant_id BIGINT DEFAULT 1 REFERENCES tenants(id);
+CREATE INDEX idx_users_tenant ON app_user(tenant_id);
 
 -- Add tenant_id to mines table
 ALTER TABLE mines ADD COLUMN tenant_id BIGINT DEFAULT 1 REFERENCES tenants(id);
@@ -110,7 +110,7 @@ CREATE INDEX idx_templates_tenant ON inspection_templates(tenant_id);
 CREATE TABLE audit_logs (
     id BIGSERIAL PRIMARY KEY,
     tenant_id BIGINT NOT NULL REFERENCES tenants(id),
-    user_id BIGINT REFERENCES users(id),
+    user_id BIGINT REFERENCES app_user(id),
     action VARCHAR(50) NOT NULL,
     entity_type VARCHAR(100) NOT NULL,
     entity_id VARCHAR(100),
@@ -169,7 +169,7 @@ CREATE TABLE whatsapp_conversations (
     id VARCHAR(100) PRIMARY KEY,
     tenant_id BIGINT NOT NULL REFERENCES tenants(id),
     phone_number VARCHAR(50) NOT NULL,
-    user_id BIGINT REFERENCES users(id),
+    user_id BIGINT REFERENCES app_user(id),
     officer_name VARCHAR(200),
     state VARCHAR(50) NOT NULL DEFAULT 'IDLE',
     context JSONB DEFAULT '{}',
@@ -197,7 +197,7 @@ CREATE TABLE stored_files (
     category VARCHAR(50) NOT NULL,
     entity_id BIGINT,
     entity_type VARCHAR(100),
-    uploaded_by BIGINT REFERENCES users(id),
+    uploaded_by BIGINT REFERENCES app_user(id),
     metadata JSONB,
     created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );

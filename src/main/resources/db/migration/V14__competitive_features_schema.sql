@@ -15,7 +15,7 @@ CREATE TABLE sync_records (
     local_id VARCHAR(100) PRIMARY KEY,
     server_id BIGINT,
     tenant_id BIGINT NOT NULL REFERENCES tenants(id),
-    user_id BIGINT NOT NULL REFERENCES users(id),
+    user_id BIGINT NOT NULL REFERENCES app_user(id),
     entity_type VARCHAR(50) NOT NULL,
     operation VARCHAR(20) NOT NULL,  -- CREATE, UPDATE, DELETE
     status VARCHAR(20) NOT NULL DEFAULT 'PENDING',
@@ -114,7 +114,7 @@ CREATE TABLE geofences (
 
 CREATE TABLE personnel_locations (
     id BIGSERIAL PRIMARY KEY,
-    user_id BIGINT NOT NULL REFERENCES users(id),
+    user_id BIGINT NOT NULL REFERENCES app_user(id),
     device_id VARCHAR(100),
     latitude DECIMAL(10, 8) NOT NULL,
     longitude DECIMAL(11, 8) NOT NULL,
@@ -217,7 +217,7 @@ CREATE TABLE emergencies (
     location_type VARCHAR(20) NOT NULL,
     latitude DECIMAL(10, 8),
     longitude DECIMAL(11, 8),
-    reported_by BIGINT REFERENCES users(id),
+    reported_by BIGINT REFERENCES app_user(id),
     status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
     description TEXT,
     started_at TIMESTAMP NOT NULL DEFAULT NOW(),
@@ -227,7 +227,7 @@ CREATE TABLE emergencies (
 CREATE TABLE emergency_responses (
     id BIGSERIAL PRIMARY KEY,
     emergency_id VARCHAR(100) NOT NULL REFERENCES emergencies(id),
-    responder_id BIGINT REFERENCES users(id),
+    responder_id BIGINT REFERENCES app_user(id),
     response_type VARCHAR(50) NOT NULL,  -- DISPATCHED, ARRIVED, ACTION_TAKEN
     notes TEXT,
     timestamp TIMESTAMP NOT NULL DEFAULT NOW()
@@ -247,7 +247,7 @@ CREATE TABLE muster_points (
 CREATE TABLE muster_attendance (
     id BIGSERIAL PRIMARY KEY,
     emergency_id VARCHAR(100) NOT NULL REFERENCES emergencies(id),
-    user_id BIGINT NOT NULL REFERENCES users(id),
+    user_id BIGINT NOT NULL REFERENCES app_user(id),
     muster_point_id VARCHAR(100) REFERENCES muster_points(id),
     checked_in_at TIMESTAMP NOT NULL DEFAULT NOW(),
     is_accounted_for BOOLEAN DEFAULT TRUE
