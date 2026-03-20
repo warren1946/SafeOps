@@ -23,7 +23,7 @@ object InspectionSpecifications {
         }
 
     fun dateBetween(from: Instant?, to: Instant?) = Specification<InspectionJpaEntity> { root, _, cb ->
-        val field = root.get<Instant>("performedAt")
+        val field = root.get<Instant>("createdAt")
         val predicates = mutableListOf<Predicate>()
 
         if (from != null) predicates += cb.greaterThanOrEqualTo(field, from)
@@ -33,7 +33,7 @@ object InspectionSpecifications {
     }
 
     fun officerEquals(officerId: Long?) = Specification<InspectionJpaEntity> { root, _, cb ->
-        officerId?.let { cb.equal(root.get<Long>("officerId"), it) }
+        officerId?.let { cb.equal(root.get<Long>("inspectorId"), it) }
     }
 
     fun locationEquals(type: SafetyLocationType?, id: Long?) = Specification<InspectionJpaEntity> { root, _, cb ->
