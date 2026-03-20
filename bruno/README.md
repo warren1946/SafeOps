@@ -18,8 +18,11 @@ Download and install Bruno from: https://www.usebruno.com/downloads
 
 Choose your environment from the dropdown:
 
-- **local** - Development server (http://localhost:8080)
-- **staging** - Staging server
+| Environment    | URL                            | Description            |
+|----------------|--------------------------------|------------------------|
+| **local**      | http://localhost:8080          | Development server     |
+| **staging**    | https://staging-api.safeops.io | Staging server         |
+| **production** | https://safeops-1.onrender.com | Live production server |
 
 ## Quick Start
 
@@ -259,13 +262,36 @@ bru run --env local
 
 ## Environment Variables Reference
 
-| Variable       | Description                  | Example                 |
-|----------------|------------------------------|-------------------------|
-| `baseUrl`      | API base URL                 | `http://localhost:8080` |
-| `tenantId`     | Current tenant ID            | `1`                     |
-| `tenantSlug`   | Current tenant slug          | `default`               |
-| `accessToken`  | JWT access token (auto-set)  | `eyJhbG...`             |
-| `refreshToken` | JWT refresh token (auto-set) | `eyJhbG...`             |
+| Variable       | Description                  | Example                                                     |
+|----------------|------------------------------|-------------------------------------------------------------|
+| `baseUrl`      | API base URL                 | `http://localhost:8080` or `https://safeops-1.onrender.com` |
+| `tenantId`     | Current tenant ID            | `1`                                                         |
+| `tenantSlug`   | Current tenant slug          | `default`                                                   |
+| `accessToken`  | JWT access token (auto-set)  | `eyJhbG...`                                                 |
+| `refreshToken` | JWT refresh token (auto-set) | `eyJhbG...`                                                 |
+
+## 🚀 Testing Production (Render)
+
+The service is live at: **https://safeops-1.onrender.com**
+
+### Quick Test Steps:
+
+1. **Select `production` environment** in Bruno dropdown
+2. **Run Auth/Register** to create a test user (if no users exist)
+3. **Run Auth/Login** - tokens will be auto-saved
+4. **Test Core endpoints**:
+    - `Core/Create Mine` → Creates a new mine
+    - `Core/List Mines` → Lists all mines
+5. **Test Inspections**:
+    - `Inspections/Create Inspection` → Creates inspection
+    - `Inspections/List Inspections` → Lists inspections
+
+### ⚠️ Production Notes:
+
+- First request may be **slow** (Render free tier spins down after inactivity)
+- Database is **fresh** (no seeded data) - you'll need to create mines/sites first
+- WhatsApp webhooks won't work (no WhatsApp Business API configured)
+- File uploads go to local storage (not persisted across restarts)
 
 ## Additional Resources
 
