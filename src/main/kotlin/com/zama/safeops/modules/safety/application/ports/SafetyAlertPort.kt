@@ -15,4 +15,5 @@ interface SafetyAlertPort {
     fun update(alert: SafetyAlert): SafetyAlert
     fun findById(id: SafetyAlertId): SafetyAlert?
     fun findUnacknowledged(): List<SafetyAlert>
+    fun findAll(): List<SafetyAlert>
 }

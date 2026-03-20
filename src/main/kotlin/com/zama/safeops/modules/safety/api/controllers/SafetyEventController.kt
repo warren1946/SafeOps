@@ -31,4 +31,10 @@ class SafetyEventController(
         "Safety event retrieved successfully",
         safetyEventService.get(id).toResponse()
     )
+
+    @GetMapping
+    fun list() = ok(
+        "Safety events retrieved successfully",
+        safetyEventService.list().map { it.toResponse() }
+    )
 }

@@ -19,7 +19,7 @@ import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/api/templates")
+@RequestMapping("/api/templates", "/api/v1/templates")
 class TemplateController(
     private val templateService: TemplateService,
     private val templateQuestionService: TemplateQuestionService,

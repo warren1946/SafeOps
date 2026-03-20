@@ -33,4 +33,10 @@ class SafetyAlertController(
         "Safety alert acknowledged successfully",
         safetyAlertService.acknowledge(id).toResponse()
     )
+
+    @GetMapping
+    fun list() = ok(
+        "Safety alerts retrieved successfully",
+        safetyAlertService.list().map { it.toResponse() }
+    )
 }

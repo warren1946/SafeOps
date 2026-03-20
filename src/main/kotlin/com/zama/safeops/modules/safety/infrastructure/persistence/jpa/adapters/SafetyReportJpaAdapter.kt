@@ -24,6 +24,9 @@ class SafetyReportJpaAdapter(
 
     override fun findById(id: SafetyReportId): SafetyReport? =
         repo.findById(id.value).orElse(null)?.toDomain()
+
+    override fun findAll(): List<SafetyReport> =
+        repo.findAll().map { it.toDomain() }
 }
 
 private fun SafetyReport.toEntity() = SafetyReportJpaEntity(

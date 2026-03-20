@@ -113,4 +113,7 @@ class SafetyEventService(
 
     private fun ensureEventId(id: Long?) =
         id ?: error("SafetyEvent ID must not be null after persistence")
+
+    @Transactional(readOnly = true)
+    fun list(): List<SafetyEvent> = eventPort.findAll()
 }

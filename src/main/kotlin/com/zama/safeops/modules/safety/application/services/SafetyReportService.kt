@@ -77,4 +77,7 @@ class SafetyReportService(
     @Transactional(readOnly = true)
     fun get(id: Long): SafetyReport =
         reportPort.findById(SafetyReportId(id)) ?: throw SafetyReportNotFoundException(id)
+
+    @Transactional(readOnly = true)
+    fun list(): List<SafetyReport> = reportPort.findAll()
 }

@@ -47,4 +47,7 @@ class SafetyAlertService(
             throw SafetyInvalidInputException("Recipient with ID $recipientId does not exist")
         }
     }
+
+    @Transactional(readOnly = true)
+    fun list(): List<SafetyAlert> = alertPort.findAll()
 }

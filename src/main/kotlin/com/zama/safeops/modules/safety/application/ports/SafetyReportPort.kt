@@ -13,4 +13,5 @@ import com.zama.safeops.modules.safety.domain.valueobjects.SafetyReportId
 interface SafetyReportPort {
     fun create(report: SafetyReport): SafetyReport
     fun findById(id: SafetyReportId): SafetyReport?
+    fun findAll(): List<SafetyReport>
 }

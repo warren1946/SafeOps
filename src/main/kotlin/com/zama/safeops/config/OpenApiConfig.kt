@@ -11,9 +11,11 @@ import io.swagger.v3.oas.models.OpenAPI
 import io.swagger.v3.oas.models.info.Contact
 import io.swagger.v3.oas.models.info.Info
 import io.swagger.v3.oas.models.info.License
+import io.swagger.v3.oas.models.security.SecurityRequirement
 import io.swagger.v3.oas.models.servers.Server
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Profile
 
 @Configuration
 @SecurityScheme(
@@ -25,6 +27,7 @@ import org.springframework.context.annotation.Configuration
 class OpenApiConfig {
 
     @Bean
+    @Profile("!prod") // Disable OpenAPI in production if needed, or remove this to enable everywhere
     fun customOpenAPI(): OpenAPI {
         return OpenAPI()
             .info(
@@ -54,5 +57,11 @@ class OpenApiConfig {
                     .url("https://api.safeops.com")
                     .description("Production Server")
             )
+            .addServersItem(
+                Server()
+                    .url("https://safeops-1.onrender.com")
+                    .description("Render Production Server")
+            )
+            .addSecurityItem(SecurityRequirement().addList("bearerAuth"))
     }
 }

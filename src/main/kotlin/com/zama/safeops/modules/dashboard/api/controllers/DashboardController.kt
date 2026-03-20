@@ -75,4 +75,18 @@ class DashboardController(
         "Reviewer comments summary",
         dashboardService.getReviewerCommentsSummary()
     )
+
+    // Additional endpoints for backward compatibility with client expectations
+
+    @GetMapping("/stats")
+    fun stats() = ok(
+        "Dashboard statistics retrieved successfully",
+        dashboardService.getSummary().toResponse()
+    )
+
+    @GetMapping("/recent-inspections")
+    fun recentInspections() = ok(
+        "Recent inspections retrieved successfully",
+        dashboardService.getTopFailingInspections(limit = 10)
+    )
 }

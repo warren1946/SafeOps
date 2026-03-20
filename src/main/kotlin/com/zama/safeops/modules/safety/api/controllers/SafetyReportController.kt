@@ -28,4 +28,10 @@ class SafetyReportController(private val safetyReportService: SafetyReportServic
         "Safety report retrieved successfully",
         safetyReportService.get(id).toResponse()
     )
+
+    @GetMapping
+    fun list() = ok(
+        "Safety reports retrieved successfully",
+        safetyReportService.list().map { it.toResponse() }
+    )
 }
