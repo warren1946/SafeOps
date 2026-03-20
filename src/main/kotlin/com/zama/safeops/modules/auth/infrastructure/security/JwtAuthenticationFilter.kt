@@ -47,7 +47,11 @@ class JwtAuthenticationFilter(
                 val user = userPort.findById(UserId(userId))
 
                 if (user != null && SecurityContextHolder.getContext().authentication == null) {
-                    val authorities = user.roles.map { SimpleGrantedAuthority(it.name.value) }
+                    val authorities = user.roles.map {
+                        val roleName = it.name.value
+                        val authority = if (roleName.startsWith("ROLE_")) roleName else "ROLE_$roleName"
+                        SimpleGrantedAuthority(authority)
+                    }
 
                     val authentication = UsernamePasswordAuthenticationToken(
                         user.id!!.value,
