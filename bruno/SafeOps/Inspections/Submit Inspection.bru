@@ -1,0 +1,40 @@
+meta {
+  name: Submit Inspection
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/api/inspections/1/submit
+  body: json
+  auth: bearer
+}
+
+body:json {
+  {
+    "items": [
+      {
+        "questionId": 1,
+        "answer": "PASS",
+        "comment": "All emergency exits clearly marked"
+      },
+      {
+        "questionId": 2,
+        "answer": "FAIL",
+        "comment": "Ventilation fan #3 making unusual noise",
+        "photoUrl": "inspection-photos/123.jpg"
+      }
+    ]
+  }
+}
+
+docs {
+  # Submit Inspection
+  
+  Submit completed inspection with answers.
+  
+  ## Answer Options
+  - `PASS` - Meets requirements
+  - `FAIL` - Does not meet requirements
+  - `NOT_APPLICABLE` - Not applicable to this location
+}

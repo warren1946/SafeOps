@@ -1,0 +1,21 @@
+meta {
+  name: Get Dashboard Stats
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/dashboard/stats
+  body: none
+  auth: bearer
+}
+
+docs {
+  # Get Dashboard Statistics
+  
+  Get overview statistics for the dashboard:
+  - Today's inspections count
+  - Open hazards count
+  - Compliance rate
+  - Active WhatsApp users
+}

@@ -1,0 +1,24 @@
+auth {
+  mode: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+headers {
+  Content-Type: application/json
+  X-Tenant-ID: {{tenantId}}
+  X-Tenant-Slug: {{tenantSlug}}
+}
+
+script:post-response {
+  // Auto-save tokens from login/register responses
+  if (res.status === 200 && req.url.includes('/api/auth/')) {
+    const json = res.getBody();
+    if (json.data && json.data.accessToken) {
+      bru.setVar('accessToken', json.data.accessToken);
+      bru.setVar('refreshToken', json.data.refreshToken);
+    }
+  }
+}

@@ -1,0 +1,24 @@
+meta {
+  name: Create Site
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/api/core/sites
+  body: json
+  auth: bearer
+}
+
+body:json {
+  {
+    "name": "Processing Plant",
+    "mineId": 1
+  }
+}
+
+docs {
+  # Create Site
+  
+  Create a site within a mine.
+}

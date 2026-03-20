@@ -1,0 +1,27 @@
+meta {
+  name: Webhook - Emergency
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/api/whatsapp/webhook
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "messageId": "msg_004",
+    "from": "+27821234567",
+    "text": "EMERGENCY"
+  }
+}
+
+docs {
+  # WhatsApp Webhook - Emergency
+  
+  Test emergency alert workflow.
+  
+  ⚠️ This triggers immediate supervisor notifications!
+}

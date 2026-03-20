@@ -1,0 +1,25 @@
+meta {
+  name: Webhook - Start Inspection
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/api/whatsapp/webhook
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "messageId": "msg_001",
+    "from": "+27821234567",
+    "text": "START INSPECTION"
+  }
+}
+
+docs {
+  # WhatsApp Webhook - Start Inspection
+  
+  Simulate incoming WhatsApp message to start inspection workflow.
+}

@@ -65,6 +65,11 @@ dependencies {
     // ==================== Monitoring ====================
     implementation("io.micrometer:micrometer-registry-prometheus")
 
+    // ==================== API Documentation ====================
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
+
+
+
     // ==================== Development ====================
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     developmentOnly("org.springframework.boot:spring-boot-docker-compose")
@@ -78,8 +83,9 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
     // ==================== Test Containers ====================
-    testImplementation("org.testcontainers:junit-jupiter")
-    testImplementation("org.testcontainers:postgresql")
+    testImplementation("org.testcontainers:junit-jupiter:1.19.7")
+    testImplementation("org.testcontainers:postgresql:1.19.7")
+    testImplementation("org.springframework.boot:spring-boot-test-autoconfigure")
 }
 
 kotlin {

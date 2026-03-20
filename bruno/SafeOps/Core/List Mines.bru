@@ -1,0 +1,17 @@
+meta {
+  name: List Mines
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/api/core/mines
+  body: none
+  auth: bearer
+}
+
+docs {
+  # List Mines
+  
+  Get all mines for the current tenant.
+}

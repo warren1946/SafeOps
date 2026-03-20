@@ -1,0 +1,32 @@
+meta {
+  name: Create Inspection
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/api/inspections
+  body: json
+  auth: bearer
+}
+
+body:json {
+  {
+    "title": "Weekly Shaft A Safety Check",
+    "targetType": "AREA",
+    "targetId": 1,
+    "templateId": 1,
+    "assignedOfficerId": 3
+  }
+}
+
+docs {
+  # Create Inspection
+  
+  Create a new safety inspection.
+  
+  ## Target Types
+  - `AREA` - Specific work area
+  - `SHAFT` - Mine shaft
+  - `SITE` - Processing site
+}

@@ -39,3 +39,29 @@ out/
 ### Kotlin ###
 .kotlin
 /src/main/resources/docx/
+
+### Environment & Secrets ###
+.env
+.env.local
+.env.*.local
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+
+### Logs ###
+*.log
+logs/
+
+### Docker Volumes ###
+volumes/
+data/
+
+### Test Output ###
+test-output/
+*.exec
+
+### OS Files ###
+.DS_Store
+Thumbs.db

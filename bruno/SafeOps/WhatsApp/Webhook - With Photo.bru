@@ -1,0 +1,26 @@
+meta {
+  name: Webhook - With Photo
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/api/whatsapp/webhook
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "messageId": "msg_003",
+    "from": "+27821234567",
+    "text": "Yes",
+    "mediaUrl": "https://cdn.whatsapp.net/media/photo_123.jpg"
+  }
+}
+
+docs {
+  # WhatsApp Webhook - Photo Upload
+  
+  Simulate WhatsApp message with photo attachment.
+}

@@ -1,0 +1,17 @@
+meta {
+  name: Get Inspection
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/api/inspections/1
+  body: none
+  auth: bearer
+}
+
+docs {
+  # Get Inspection Details
+  
+  Get full inspection details including items and answers.
+}

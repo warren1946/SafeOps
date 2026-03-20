@@ -24,6 +24,8 @@ import com.zama.safeops.modules.safety.application.ports.SafetyAlertPort
 import com.zama.safeops.modules.safety.application.ports.SafetyEventPort
 import com.zama.safeops.modules.safety.domain.model.SafetyEventType
 import com.zama.safeops.modules.safety.domain.model.SafetyLocationType
+import io.micrometer.core.instrument.MeterRegistry
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
@@ -39,8 +41,13 @@ class DashboardService(
     private val inspectionPort: InspectionPort,
     private val alertPort: SafetyAlertPort,
     private val userPort: UserPort,
-    private val inspectionQueryService: InspectionQueryService
+    private val inspectionQueryService: InspectionQueryService,
+    private val meterRegistry: MeterRegistry? = null
 ) {
+
+    companion object {
+        const val CACHE_DASHBOARD_STATS = "dashboard-stats"
+    }
 
     @Transactional(readOnly = true)
     fun getActiveHazards(limit: Int): List<DashboardHazardSummary> =
@@ -54,30 +61,48 @@ class DashboardService(
             )
         }
 
+    /**
+     * Get dashboard summary with caching for improved performance.
+     * Cache is refreshed every 5 minutes.
+     */
+    @Cacheable(value = [CACHE_DASHBOARD_STATS], key = "'summary'")
     @Transactional(readOnly = true)
     fun getSummary(): DashboardSummary {
-        val activeHazards = hazardPort.findActive(limit = 1000) // cheap-ish count
+        val startTime = System.currentTimeMillis()
+
+        val activeHazards = hazardPort.findActive(limit = 1000)
         val inspections = inspectionPort.findAll()
         val alerts = alertPort.findUnacknowledged()
         val recentEvents = eventPort.findRecent(limit = 50)
         val activeOfficers = userPort.countActiveOfficers()
 
-        return DashboardSummary(
+        val summary = DashboardSummary(
             activeHazardCount = activeHazards.size,
             submittedInspectionCount = inspections.count { it.status == InspectionStatus.SUBMITTED },
             unacknowledgedAlertCount = alerts.size,
             recentEventCount = recentEvents.size,
             activeOfficerCount = activeOfficers
         )
+
+        // Record metrics
+        meterRegistry?.counter("dashboard.summary.generated")?.increment()
+        meterRegistry?.timer("dashboard.summary.query.time")?.record(
+            System.currentTimeMillis() - startTime,
+            java.util.concurrent.TimeUnit.MILLISECONDS
+        )
+
+        return summary
     }
 
     @Transactional(readOnly = true)
     fun getEventTrends(): List<DashboardEventTrendPoint> {
+        val startTime = System.currentTimeMillis()
         val now = Instant.now()
-        val start = now.minusSeconds(30L * 24 * 60 * 60) // last 30 days
+        val start = now.minusSeconds(30L * 24 * 60 * 60)
+
         val events = eventPort.findByPeriod(start, now)
 
-        return events
+        val trends = events
             .groupBy { it.createdAt.atZone(ZoneOffset.UTC).toLocalDate() }
             .toSortedMap()
             .map { (date, dayEvents) ->
@@ -91,8 +116,16 @@ class DashboardService(
                     observations = dayEvents.count { it.type == SafetyEventType.OBSERVATION }
                 )
             }
+
+        meterRegistry?.timer("dashboard.trends.query.time")?.record(
+            System.currentTimeMillis() - startTime,
+            java.util.concurrent.TimeUnit.MILLISECONDS
+        )
+
+        return trends
     }
 
+    @Cacheable(value = [CACHE_DASHBOARD_STATS], key = "'summary-filtered-' + #filter.type + '-' + #filter.id")
     @Transactional(readOnly = true)
     fun getSummaryFiltered(filter: DashboardFilterRequest): DashboardSummary {
         val events = eventPort.findAll()
@@ -174,6 +207,8 @@ class DashboardService(
         }
     }
 
+    @Cacheable(value = [CACHE_DASHBOARD_STATS], key = "'failing-inspections'")
+    @Transactional(readOnly = true)
     fun getTopFailingInspections(limit: Int = 5): List<InspectionSummaryResponse> {
         val recent = inspectionPort.findRecent(50)
         val withItems = inspectionQueryService.attachItems(recent)
@@ -185,6 +220,7 @@ class DashboardService(
             .map { it.first.toSummaryResponse() }
     }
 
+    @Transactional(readOnly = true)
     fun getInspectionScoreTrend(days: Long = 30): List<ScoreTrendPoint> {
         val since = Instant.now().minus(days, ChronoUnit.DAYS)
         val recent = inspectionPort.findSince(since, PageRequest.of(0, 200, Sort.by("createdAt").descending()))
@@ -202,6 +238,7 @@ class DashboardService(
             .sortedBy { it.date }
     }
 
+    @Transactional(readOnly = true)
     fun getReviewerCommentsSummary(limit: Int = 10): List<ReviewerCommentSummary> {
         val recent = inspectionPort.findRecent(100)
         return recent

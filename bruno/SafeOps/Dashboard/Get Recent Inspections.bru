@@ -1,0 +1,21 @@
+meta {
+  name: Get Recent Inspections
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/api/dashboard/recent-inspections?limit=5
+  body: none
+  auth: bearer
+}
+
+query {
+  limit: 5
+}
+
+docs {
+  # Get Recent Inspections
+  
+  Get latest inspections for dashboard display.
+}

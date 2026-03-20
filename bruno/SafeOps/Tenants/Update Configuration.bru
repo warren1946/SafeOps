@@ -1,0 +1,31 @@
+meta {
+  name: Update Configuration
+  type: http
+  seq: 3
+}
+
+put {
+  url: {{baseUrl}}/api/admin/tenants/{{tenantId}}/configuration
+  body: json
+  auth: bearer
+}
+
+body:json {
+  {
+    "language": "en",
+    "timezone": "Africa/Johannesburg",
+    "features": {
+      "whatsAppIntegration": true,
+      "advancedReporting": true,
+      "customBranding": true,
+      "photoEvidence": true,
+      "gpsTracking": true
+    }
+  }
+}
+
+docs {
+  # Update Tenant Configuration
+  
+  Update tenant settings and feature flags.
+}

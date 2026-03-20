@@ -1,0 +1,40 @@
+meta {
+  name: Create Hazard
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/api/hazards
+  body: json
+  auth: bearer
+}
+
+body:json {
+  {
+    "title": "Loose rock fall risk - Shaft A",
+    "description": "Large crack in support beam observed near Level 3 extraction zone",
+    "severity": "CRITICAL",
+    "priority": "HIGH",
+    "dueDate": "2026-03-20",
+    "locationType": "SHAFT",
+    "locationId": 1
+  }
+}
+
+docs {
+  # Create Hazard Report
+  
+  Report a new safety hazard.
+  
+  ## Severity Levels
+  - `LOW`
+  - `MEDIUM`
+  - `HIGH`
+  - `CRITICAL`
+  
+  ## Location Types
+  - `AREA`
+  - `SHAFT`
+  - `SITE`
+}

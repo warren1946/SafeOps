@@ -1,0 +1,29 @@
+meta {
+  name: Update Branding
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{baseUrl}}/api/admin/tenants/{{tenantId}}/branding
+  body: json
+  auth: bearer
+}
+
+body:json {
+  {
+    "primaryColor": "#1e3a5f",
+    "logoUrl": "https://cdn.example.com/logo.png",
+    "appName": "Acme Mining Safety"
+  }
+}
+
+docs {
+  # Update Tenant Branding (White-Label)
+  
+  Customize tenant branding:
+  - Primary/secondary colors
+  - Logo URL
+  - App name
+  - Support contact info
+}

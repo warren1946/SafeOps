@@ -1,0 +1,25 @@
+meta {
+  name: Webhook - Report Hazard
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/api/whatsapp/webhook
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "messageId": "msg_002",
+    "from": "+27821234567",
+    "text": "REPORT HAZARD"
+  }
+}
+
+docs {
+  # WhatsApp Webhook - Report Hazard
+  
+  Simulate hazard report via WhatsApp.
+}

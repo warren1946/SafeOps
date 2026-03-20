@@ -1,0 +1,28 @@
+meta {
+  name: List Hazards
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/api/hazards?status=OPEN&severity=CRITICAL
+  body: none
+  auth: bearer
+}
+
+query {
+  status: OPEN
+  severity: CRITICAL
+}
+
+docs {
+  # List Hazards
+  
+  Get hazards with filters.
+  
+  ## Status Filters
+  - `OPEN`
+  - `IN_PROGRESS`
+  - `RESOLVED`
+  - `CLOSED`
+}

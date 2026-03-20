@@ -1,0 +1,32 @@
+meta {
+  name: Provision Tenant
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/api/admin/tenants
+  body: json
+  auth: bearer
+}
+
+body:json {
+  {
+    "slug": "acme-mining",
+    "name": "Acme Mining Corporation",
+    "adminEmail": "admin@acmemining.com",
+    "plan": "PROFESSIONAL"
+  }
+}
+
+docs {
+  # Provision New Tenant (Super Admin Only)
+  
+  Create a new white-label tenant.
+  
+  ## Plans
+  - `BASIC`
+  - `PROFESSIONAL`
+  - `ENTERPRISE`
+  - `CUSTOM`
+}

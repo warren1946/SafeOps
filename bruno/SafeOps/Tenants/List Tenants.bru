@@ -1,0 +1,17 @@
+meta {
+  name: List Tenants
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/admin/tenants
+  body: none
+  auth: bearer
+}
+
+docs {
+  # List All Tenants (Super Admin Only)
+  
+  Get list of all tenants in the system.
+}

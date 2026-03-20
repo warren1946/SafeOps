@@ -1,0 +1,24 @@
+meta {
+  name: Create Area
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/api/core/areas
+  body: json
+  auth: bearer
+}
+
+body:json {
+  {
+    "name": "Level 3 - Extraction Zone",
+    "shaftId": 1
+  }
+}
+
+docs {
+  # Create Area
+  
+  Create an area within a shaft.
+}

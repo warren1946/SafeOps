@@ -1,0 +1,24 @@
+meta {
+  name: Create Shaft
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/api/core/shafts
+  body: json
+  auth: bearer
+}
+
+body:json {
+  {
+    "name": "Shaft A",
+    "siteId": 1
+  }
+}
+
+docs {
+  # Create Shaft
+  
+  Create a shaft within a site.
+}
