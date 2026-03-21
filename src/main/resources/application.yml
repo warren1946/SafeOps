@@ -117,12 +117,19 @@ springdoc:
   api-docs:
     path: /v3/api-docs
     enabled: true
+    resolve-schema-properties: true
   swagger-ui:
     path: /swagger-ui.html
     enabled: true
     operationsSorter: method
     tagsSorter: alpha
     display-request-duration: true
+    disable-swagger-default-url: true
+  cache:
+    disabled: true
   show-actuator: false
   packages-to-scan: com.zama.safeops.modules
-  paths-to-match: /api/**, /health, /actuator/**
+  paths-to-match: /api/**, /health
+  default-produces-media-type: application/json
+  default-consumes-media-type: application/json
+  writer-with-default-pretty-printer: true
