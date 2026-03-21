@@ -27,6 +27,14 @@ class UserService(
     private val passwordEncoder: PasswordEncoderPort
 ) {
 
+    companion object {
+        // Roles that CANNOT be self-assigned during registration
+        private val RESTRICTED_ROLES = setOf("SUPER_ADMIN", "ADMIN")
+
+        // Default role for new registrations
+        private val DEFAULT_ROLE = "OFFICER"
+    }
+
     @Transactional
     fun register(email: String, rawPassword: String, roleNames: Set<String>): User {
         val emailVo = Email(email)
@@ -34,7 +42,25 @@ class UserService(
             throw UserAlreadyExistsException(email)
         }
 
-        val roles: Set<Role> = roleNames.map { name ->
+        // SECURITY: Filter out restricted roles to prevent privilege escalation
+        val sanitizedRoles = roleNames.filter { role ->
+            if (role in RESTRICTED_ROLES) {
+                // Log the attempt (in real app, use proper logging)
+                println("SECURITY: Attempted to assign restricted role '$role' during registration - filtered")
+                false
+            } else {
+                true
+            }
+        }.toSet()
+
+        // If no valid roles remain, assign default role
+        val finalRoles = if (sanitizedRoles.isEmpty()) {
+            setOf(DEFAULT_ROLE)
+        } else {
+            sanitizedRoles
+        }
+
+        val roles: Set<Role> = finalRoles.map { name ->
             val roleName = RoleName(name)
             rolePort.findByName(roleName)
                 ?: rolePort.save(Role(id = null, name = roleName))
