@@ -6,6 +6,7 @@ import com.zama.safeops.frontend.domain.model.User
 import com.zama.safeops.frontend.domain.usecase.auth.GetCurrentUserUseCase
 import com.zama.safeops.frontend.domain.usecase.auth.LoginUseCase
 import com.zama.safeops.frontend.domain.usecase.auth.LogoutUseCase
+import com.zama.safeops.frontend.presentation.rbac.UserSession
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -26,6 +27,8 @@ class AuthViewModel(
 
             loginUseCase(email, password)
                 .onSuccess { user ->
+                    // Store user in global session for RBAC
+                    UserSession.login(user)
                     _state.value = AuthState.Authenticated(user)
                 }
                 .onFailure { error ->
@@ -40,6 +43,8 @@ class AuthViewModel(
 
             getCurrentUserUseCase()
                 .onSuccess { user ->
+                    // Store user in global session for RBAC
+                    UserSession.login(user)
                     _state.value = AuthState.Authenticated(user)
                 }
                 .onFailure {
@@ -50,6 +55,7 @@ class AuthViewModel(
 
     fun logout() {
         logoutUseCase()
+        UserSession.logout()
         _state.value = AuthState.Idle
     }
 }

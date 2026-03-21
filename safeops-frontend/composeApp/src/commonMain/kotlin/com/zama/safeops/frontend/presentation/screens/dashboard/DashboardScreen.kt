@@ -1,43 +1,13 @@
 package com.zama.safeops.frontend.presentation.screens.dashboard
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Assessment
-import androidx.compose.material.icons.filled.Build
-import androidx.compose.material.icons.filled.ExitToApp
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -52,43 +22,31 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import cafe.adriel.voyager.navigator.tab.CurrentTab
-import cafe.adriel.voyager.navigator.tab.LocalTabNavigator
-import cafe.adriel.voyager.navigator.tab.Tab
-import cafe.adriel.voyager.navigator.tab.TabNavigator
-import cafe.adriel.voyager.navigator.tab.TabOptions
-import com.zama.safeops.frontend.domain.model.Hazard
-import com.zama.safeops.frontend.domain.model.HazardSeverity
-import com.zama.safeops.frontend.domain.model.Inspection
-import com.zama.safeops.frontend.domain.model.InspectionStatus
-import com.zama.safeops.frontend.domain.model.SafetyScore
-import com.zama.safeops.frontend.domain.model.TrendDirection
+import cafe.adriel.voyager.navigator.tab.*
+import com.zama.safeops.frontend.domain.model.*
+import com.zama.safeops.frontend.presentation.rbac.*
+import com.zama.safeops.frontend.presentation.screens.admin.AdminDashboardScreen
 import com.zama.safeops.frontend.presentation.screens.auth.AuthViewModel
 import com.zama.safeops.frontend.presentation.screens.auth.LoginScreen
-import com.zama.safeops.frontend.presentation.theme.SafetyBlue
-import com.zama.safeops.frontend.presentation.theme.SafetyGreen
-import com.zama.safeops.frontend.presentation.theme.SafetyOrange
-import com.zama.safeops.frontend.presentation.theme.SafetyRed
-import com.zama.safeops.frontend.presentation.theme.SafetyYellow
+import com.zama.safeops.frontend.presentation.theme.*
 
+/**
+ * Main Dashboard Screen with Role-Based Navigation
+ * Different tabs and features shown based on user role
+ */
 class DashboardScreen : Screen {
     @Composable
     override fun Content() {
-        TabNavigator(HomeTab) {
-            Scaffold(
-                topBar = { DashboardTopBar() },
-                bottomBar = { DashboardBottomBar() },
-                floatingActionButton = {
-                    FloatingActionButton(
-                        onClick = { /* TODO: Quick action */ },
-                        containerColor = SafetyOrange
-                    ) {
-                        Icon(Icons.Default.Add, contentDescription = "Add")
+        ProvideUser(UserSession.currentUser) {
+            TabNavigator(HomeTab) {
+                Scaffold(
+                    topBar = { DashboardTopBar() },
+                    bottomBar = { DashboardBottomBar() },
+                    floatingActionButton = { RoleBasedFAB() }
+                ) { padding ->
+                    Box(modifier = Modifier.padding(padding)) {
+                        CurrentTab()
                     }
-                }
-            ) { padding ->
-                Box(modifier = Modifier.padding(padding)) {
-                    CurrentTab()
                 }
             }
         }
@@ -100,14 +58,37 @@ class DashboardScreen : Screen {
 private fun DashboardTopBar() {
     val navigator = LocalNavigator.currentOrThrow
     val authViewModel = koinScreenModel<AuthViewModel>()
+    val currentUser = LocalCurrentUser.current
 
     TopAppBar(
-        title = { Text("SafeOps Dashboard") },
+        title = {
+            Column {
+                Text("SafeOps Dashboard")
+                Text(
+                    currentUser.displayName,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f)
+                )
+            }
+        },
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.primary,
             titleContentColor = MaterialTheme.colorScheme.onPrimary
         ),
         actions = {
+            // Admin Panel Access - Only for ADMIN and SUPER_ADMIN
+            WithAdminPanelAccess {
+                IconButton(onClick = {
+                    navigator.push(AdminDashboardScreen())
+                }) {
+                    Icon(
+                        Icons.Default.AdminPanelSettings,
+                        contentDescription = "Admin Panel",
+                        tint = MaterialTheme.colorScheme.onPrimary
+                    )
+                }
+            }
+
             IconButton(onClick = { /* TODO: Notifications */ }) {
                 Icon(
                     Icons.Default.Notifications,
@@ -115,9 +96,11 @@ private fun DashboardTopBar() {
                     tint = MaterialTheme.colorScheme.onPrimary
                 )
             }
+
             IconButton(onClick = {
                 authViewModel.logout()
-                navigator.replace(LoginScreen())
+                UserSession.logout()
+                navigator.replaceAll(LoginScreen())
             }) {
                 Icon(
                     Icons.Default.ExitToApp,
@@ -132,36 +115,103 @@ private fun DashboardTopBar() {
 @Composable
 private fun DashboardBottomBar() {
     val tabNavigator = LocalTabNavigator.current
+    val currentUser = LocalCurrentUser.current
 
     NavigationBar {
+        // Home - All users
         NavigationBarItem(
             selected = tabNavigator.current == HomeTab,
             onClick = { tabNavigator.current = HomeTab },
             icon = { Icon(Icons.Default.Home, contentDescription = null) },
             label = { Text("Home") }
         )
+
+        // Inspections - All users
         NavigationBarItem(
             selected = tabNavigator.current == InspectionsTab,
             onClick = { tabNavigator.current = InspectionsTab },
             icon = { Icon(Icons.Default.Assessment, contentDescription = null) },
             label = { Text("Inspections") }
         )
+
+        // Hazards - All users except VIEWER
+        if (currentUser.primaryRole != UserRole.VIEWER) {
+            NavigationBarItem(
+                selected = tabNavigator.current == HazardsTab,
+                onClick = { tabNavigator.current = HazardsTab },
+                icon = { Icon(Icons.Default.Warning, contentDescription = null) },
+                label = { Text("Hazards") }
+            )
+        }
+
+        // Equipment - Only for ADMIN, SUPERVISOR, SUPER_ADMIN
+        if (currentUser.primaryRole.canManageEquipment()) {
+            NavigationBarItem(
+                selected = tabNavigator.current == EquipmentTab,
+                onClick = { tabNavigator.current = EquipmentTab },
+                icon = { Icon(Icons.Default.Build, contentDescription = null) },
+                label = { Text("Equipment") }
+            )
+        }
+
+        // Profile - All users
         NavigationBarItem(
-            selected = tabNavigator.current == HazardsTab,
-            onClick = { tabNavigator.current = HazardsTab },
-            icon = { Icon(Icons.Default.Warning, contentDescription = null) },
-            label = { Text("Hazards") }
-        )
-        NavigationBarItem(
-            selected = tabNavigator.current == EquipmentTab,
-            onClick = { tabNavigator.current = EquipmentTab },
-            icon = { Icon(Icons.Default.Build, contentDescription = null) },
-            label = { Text("Equipment") }
+            selected = tabNavigator.current == ProfileTab,
+            onClick = { tabNavigator.current = ProfileTab },
+            icon = { Icon(Icons.Default.Person, contentDescription = null) },
+            label = { Text("Profile") }
         )
     }
 }
 
-// Tabs
+@Composable
+private fun RoleBasedFAB() {
+    val currentUser = LocalCurrentUser.current
+
+    // Show different FAB based on role
+    when (currentUser.primaryRole) {
+        UserRole.SUPER_ADMIN, UserRole.ADMIN -> AdminFAB()
+        UserRole.SUPERVISOR -> SupervisorFAB()
+        UserRole.OFFICER -> OfficerFAB()
+        else -> { /* No FAB for VIEWER */
+        }
+    }
+}
+
+@Composable
+private fun AdminFAB() {
+    val navigator = LocalNavigator.currentOrThrow
+
+    ExtendedFloatingActionButton(
+        onClick = { /* Quick action menu */ },
+        containerColor = SafetyOrange,
+        icon = { Icon(Icons.Default.Add, contentDescription = null) },
+        text = { Text("New") }
+    )
+}
+
+@Composable
+private fun SupervisorFAB() {
+    ExtendedFloatingActionButton(
+        onClick = { /* Create inspection */ },
+        containerColor = SafetyBlue,
+        icon = { Icon(Icons.Default.Assignment, contentDescription = null) },
+        text = { Text("Inspection") }
+    )
+}
+
+@Composable
+private fun OfficerFAB() {
+    FloatingActionButton(
+        onClick = { /* Report hazard */ },
+        containerColor = SafetyRed
+    ) {
+        Icon(Icons.Default.Warning, contentDescription = "Report Hazard")
+    }
+}
+
+// ==================== TABS ====================
+
 object HomeTab : Tab {
     override val options: TabOptions
         @Composable
@@ -174,6 +224,7 @@ object HomeTab : Tab {
         val recentInspections by viewModel.recentInspections.collectAsState()
         val openHazards by viewModel.openHazards.collectAsState()
         val isLoading by viewModel.isLoading.collectAsState()
+        val currentUser = LocalCurrentUser.current
 
         if (isLoading) {
             Box(
@@ -188,8 +239,18 @@ object HomeTab : Tab {
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
+                // Role-based welcome message
+                item {
+                    RoleWelcomeCard(currentUser)
+                }
+
                 item {
                     SafetyScoreCard(safetyScore)
+                }
+
+                // Quick Actions - Role based
+                item {
+                    QuickActionsSection()
                 }
 
                 item {
@@ -210,24 +271,158 @@ object HomeTab : Tab {
                     }
                 }
 
-                item {
-                    Text(
-                        "Open Hazards",
-                        style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier.padding(vertical = 8.dp)
-                    )
-                }
-
-                if (openHazards.isEmpty()) {
+                // Only show hazards to users who can manage them
+                WithHazardManagementPermission {
                     item {
-                        EmptyStateMessage("No open hazards")
+                        Text(
+                            "Open Hazards",
+                            style = MaterialTheme.typography.titleLarge,
+                            modifier = Modifier.padding(vertical = 8.dp)
+                        )
                     }
-                } else {
-                    items(openHazards) { hazard ->
-                        HazardCard(hazard)
+
+                    if (openHazards.isEmpty()) {
+                        item {
+                            EmptyStateMessage("No open hazards")
+                        }
+                    } else {
+                        items(openHazards) { hazard ->
+                            HazardCard(hazard)
+                        }
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun RoleWelcomeCard(user: User) {
+    val (color, icon) = when (user.primaryRole) {
+        UserRole.SUPER_ADMIN -> Pair(SafetyRed, Icons.Default.Security)
+        UserRole.ADMIN -> Pair(SafetyOrange, Icons.Default.AdminPanelSettings)
+        UserRole.SUPERVISOR -> Pair(SafetyBlue, Icons.Default.SupervisorAccount)
+        UserRole.OFFICER -> Pair(SafetyGreen, Icons.Default.Engineering)
+        UserRole.VIEWER -> Pair(MaterialTheme.colorScheme.primary, Icons.Default.Visibility)
+    }
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = color.copy(alpha = 0.1f)
+        )
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = color,
+                modifier = Modifier.size(40.dp)
+            )
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Column {
+                Text(
+                    "Welcome, ${user.firstName ?: user.email}",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    "Role: ${user.primaryRole.name.replace("_", " ")}",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = color
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun QuickActionsSection() {
+    val currentUser = LocalCurrentUser.current
+
+    Column {
+        Text(
+            "Quick Actions",
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(vertical = 8.dp)
+        )
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            // New Inspection - Only for users who can create
+            WithInspectionCreationPermission {
+                QuickActionButton(
+                    icon = Icons.Default.Assignment,
+                    label = "Inspection",
+                    color = SafetyBlue,
+                    onClick = { /* Navigate */ },
+                    modifier = Modifier.weight(1f)
+                )
+            }
+
+            // Report Hazard - Only for users who can manage hazards
+            WithHazardManagementPermission {
+                QuickActionButton(
+                    icon = Icons.Default.Warning,
+                    label = "Hazard",
+                    color = SafetyRed,
+                    onClick = { /* Navigate */ },
+                    modifier = Modifier.weight(1f)
+                )
+            }
+
+            // View Reports - All users
+            QuickActionButton(
+                icon = Icons.Default.Assessment,
+                label = "Reports",
+                color = SafetyGreen,
+                onClick = { /* Navigate */ },
+                modifier = Modifier.weight(1f)
+            )
+        }
+    }
+}
+
+@Composable
+private fun QuickActionButton(
+    icon: ImageVector,
+    label: String,
+    color: Color,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier.height(80.dp),
+        onClick = onClick,
+        colors = CardDefaults.cardColors(
+            containerColor = color.copy(alpha = 0.1f)
+        )
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = color
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                label,
+                style = MaterialTheme.typography.bodySmall,
+                color = color
+            )
         }
     }
 }
@@ -255,11 +450,32 @@ object HazardsTab : Tab {
 
     @Composable
     override fun Content() {
+        val currentUser = LocalCurrentUser.current
+
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            Text("Hazards List (Coming Soon)")
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text("Hazards List")
+                Spacer(modifier = Modifier.height(8.dp))
+                // Show different message based on role
+                when (currentUser.primaryRole) {
+                    UserRole.OFFICER -> Text(
+                        "You can report new hazards",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+
+                    UserRole.SUPERVISOR, UserRole.ADMIN, UserRole.SUPER_ADMIN -> Text(
+                        "Manage and assign hazards",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+
+                    else -> {}
+                }
+            }
         }
     }
 }
@@ -271,16 +487,206 @@ object EquipmentTab : Tab {
 
     @Composable
     override fun Content() {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            Text("Equipment Status (Coming Soon)")
+        WithEquipmentManagementPermission {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("Equipment Management")
+            }
         }
     }
 }
 
-// UI Components
+object ProfileTab : Tab {
+    override val options: TabOptions
+        @Composable
+        get() = TabOptions(index = 4u, title = "Profile")
+
+    @Composable
+    override fun Content() {
+        val currentUser = LocalCurrentUser.current
+
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(16.dp)
+        ) {
+            item {
+                ProfileHeader(currentUser)
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+
+            item {
+                ProfileInfoCard(currentUser)
+            }
+
+            // Admin panel access in profile for admin users
+            item {
+                WithAdminPanelAccess {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    AdminAccessCard()
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ProfileHeader(user: User) {
+    val color = when (user.primaryRole) {
+        UserRole.SUPER_ADMIN -> SafetyRed
+        UserRole.ADMIN -> SafetyOrange
+        UserRole.SUPERVISOR -> SafetyBlue
+        UserRole.OFFICER -> SafetyGreen
+        else -> MaterialTheme.colorScheme.primary
+    }
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = color.copy(alpha = 0.1f)
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // Avatar placeholder
+            Box(
+                modifier = Modifier
+                    .size(80.dp)
+                    .clip(RoundedCornerShape(40.dp))
+                    .background(color),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = user.firstName?.take(1)?.uppercase() ?: "U",
+                    style = MaterialTheme.typography.headlineLarge,
+                    color = Color.White
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                user.displayName,
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold
+            )
+
+            Text(
+                user.email,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Role badge
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(color.copy(alpha = 0.2f))
+                    .padding(horizontal = 12.dp, vertical = 4.dp)
+            ) {
+                Text(
+                    user.primaryRole.name.replace("_", " "),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = color,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ProfileInfoCard(user: User) {
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            ProfileInfoRow("Tenant", user.tenantName ?: "N/A")
+            ProfileInfoRow("Mine/Site", user.mineName ?: "N/A")
+            ProfileInfoRow("User ID", user.id.toString())
+            ProfileInfoRow("Status", if (user.enabled) "Active" else "Inactive")
+        }
+    }
+}
+
+@Composable
+private fun ProfileInfoRow(label: String, value: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            label,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            value,
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.Medium
+        )
+    }
+}
+
+@Composable
+private fun AdminAccessCard() {
+    val navigator = LocalNavigator.currentOrThrow
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        onClick = { navigator.push(AdminDashboardScreen()) },
+        colors = CardDefaults.cardColors(
+            containerColor = SafetyOrange.copy(alpha = 0.1f)
+        )
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Default.AdminPanelSettings,
+                contentDescription = null,
+                tint = SafetyOrange
+            )
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    "Admin Panel",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    "Manage users, settings, and system",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            Icon(
+                imageVector = Icons.Default.ChevronRight,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+// ==================== UI Components ====================
+
 @Composable
 private fun SafetyScoreCard(score: SafetyScore?) {
     Card(
@@ -289,29 +695,19 @@ private fun SafetyScoreCard(score: SafetyScore?) {
             containerColor = MaterialTheme.colorScheme.primaryContainer
         )
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
-            Text(
-                "Safety Score",
-                style = MaterialTheme.typography.titleMedium
-            )
-
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text("Safety Score", style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
 
-            Row(
-                verticalAlignment = Alignment.Bottom
-            ) {
+            Row(verticalAlignment = Alignment.Bottom) {
                 Text(
                     text = score?.overallScore?.toString() ?: "--",
                     style = MaterialTheme.typography.displayLarge,
                     color = MaterialTheme.colorScheme.primary
                 )
-
                 Spacer(modifier = Modifier.width(8.dp))
-
                 Text(
-                    text = "/100",
+                    "/100",
                     style = MaterialTheme.typography.titleLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
