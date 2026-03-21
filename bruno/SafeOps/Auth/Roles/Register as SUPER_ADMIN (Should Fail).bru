@@ -1,0 +1,47 @@
+meta {
+  name: Register as SUPER_ADMIN (Should Fail)
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/api/v1/auth/register
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "email": "privilege_test_superadmin_{{$timestamp}}@test.com",
+    "password": "TestPass123!",
+    "roles": ["SUPER_ADMIN"]
+  }
+}
+
+script:post-response {
+  // Verify that SUPER_ADMIN role was filtered and user got OFFICER instead
+  const json = res.getBody();
+  if (json.data && json.data.roles) {
+    const hasSuperAdmin = json.data.roles.includes('SUPER_ADMIN');
+    const hasAdmin = json.data.roles.includes('ADMIN');
+    
+    if (hasSuperAdmin) {
+      bru.setVar('privilegeEscalationVulnerability', 'CRITICAL: Can register as SUPER_ADMIN');
+    } else {
+      bru.setVar('privilegeEscalationVulnerability', 'PASS: SUPER_ADMIN role filtered');
+    }
+  }
+}
+
+docs {
+  # Register as SUPER_ADMIN - Privilege Escalation Test
+  
+  ## Expected Response
+  - Status: 200 OK (registration succeeds)
+  - User should NOT have SUPER_ADMIN role
+  - User should get OFFICER role instead (security fix)
+}

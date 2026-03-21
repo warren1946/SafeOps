@@ -1,0 +1,32 @@
+meta {
+  name: Access With Malformed JWT
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{baseUrl}}/api/core/mines
+  body: none
+  auth: bearer
+}
+
+headers {
+  X-Tenant-ID: {{tenantId}}
+  X-Tenant-Slug: {{tenantSlug}}
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwibmFtZSI6IlRlc3QiLCJpYXQiOjE1MTYyMzkwMjJ9.invalidsignature
+}
+
+assert {
+  res.status: eq 401
+}
+
+docs {
+  # Access with Malformed JWT
+  
+  ## Expected Response
+  - Status: 401 Unauthorized
+  - Token signature should fail validation
+}

@@ -1,0 +1,35 @@
+meta {
+  name: Login Non-existent User
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/api/v1/auth/login
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "email": "nonexistentuser12345@test.com",
+    "password": "anypassword123"
+  }
+}
+
+assert {
+  res.status: eq 401
+  res.body.success: eq false
+}
+
+docs {
+  # Login with Non-existent User
+  
+  ## Expected Response
+  - Status: 401 Unauthorized
+  - success: false
+}

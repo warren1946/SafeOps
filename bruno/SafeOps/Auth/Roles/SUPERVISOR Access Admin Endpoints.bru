@@ -1,0 +1,32 @@
+meta {
+  name: SUPERVISOR Access Admin Endpoints
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/api/admin/tenants
+  body: none
+  auth: bearer
+}
+
+headers {
+  X-Tenant-ID: {{tenantId}}
+  X-Tenant-Slug: {{tenantSlug}}
+}
+
+auth:bearer {
+  token: {{supervisorToken}}
+}
+
+assert {
+  res.status: eq 403
+}
+
+docs {
+  # SUPERVISOR Attempting to Access Admin Endpoints
+  
+  ## Expected Response
+  - Status: 403 Forbidden
+  - SUPERVISOR should not have access to tenant management
+}

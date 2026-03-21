@@ -1,0 +1,37 @@
+meta {
+  name: XSS Test
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/api/core/mines
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  X-Tenant-ID: {{tenantId}}
+  X-Tenant-Slug: {{tenantSlug}}
+}
+
+body:json {
+  {
+    "name": "<script>alert('XSS')</script>",
+    "code": "XSS001",
+    "location": "Test Location"
+  }
+}
+
+docs {
+  # XSS (Cross-Site Scripting) Test
+  
+  ## Test
+  Submit XSS payload in request body
+  
+  ## Expected Response
+  - Script tags should be sanitized/encoded
+  - No JavaScript execution
+  - Safe storage of data
+}

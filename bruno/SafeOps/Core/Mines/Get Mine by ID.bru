@@ -1,0 +1,28 @@
+meta {
+  name: Get Mine by ID
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/api/core/mines/1
+  body: none
+  auth: bearer
+}
+
+headers {
+  X-Tenant-ID: {{tenantId}}
+  X-Tenant-Slug: {{tenantSlug}}
+}
+
+assert {
+  res.status: eq 200
+}
+
+docs {
+  # Get Mine by ID
+  
+  ## Expected Response
+  - Status: 200 OK
+  - Returns mine details
+}

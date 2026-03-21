@@ -1,0 +1,28 @@
+meta {
+  name: Access Protected Without Token
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrl}}/api/core/mines
+  body: none
+  auth: none
+}
+
+headers {
+  X-Tenant-ID: {{tenantId}}
+  X-Tenant-Slug: {{tenantSlug}}
+}
+
+assert {
+  res.status: eq 401
+}
+
+docs {
+  # Access Protected Endpoint Without Token
+  
+  ## Expected Response
+  - Status: 401 Unauthorized
+  - Request should be rejected
+}

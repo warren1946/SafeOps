@@ -1,0 +1,46 @@
+meta {
+  name: Register as ADMIN (Should Fail)
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/api/v1/auth/register
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "email": "privilege_test_admin_{{$timestamp}}@test.com",
+    "password": "TestPass123!",
+    "roles": ["ADMIN"]
+  }
+}
+
+script:post-response {
+  // Verify that ADMIN role was filtered
+  const json = res.getBody();
+  if (json.data && json.data.roles) {
+    const hasAdmin = json.data.roles.includes('ADMIN');
+    
+    if (hasAdmin) {
+      bru.setVar('adminPrivilegeEscalation', 'FAIL: Can register as ADMIN');
+    } else {
+      bru.setVar('adminPrivilegeEscalation', 'PASS: ADMIN role filtered');
+    }
+  }
+}
+
+docs {
+  # Register as ADMIN - Privilege Escalation Test
+  
+  ## Expected Response
+  - Status: 200 OK (registration succeeds)
+  - User should NOT have ADMIN role
+  - User should get OFFICER role instead (security fix)
+}

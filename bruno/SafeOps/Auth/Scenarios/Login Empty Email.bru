@@ -1,0 +1,33 @@
+meta {
+  name: Login Empty Email
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/api/v1/auth/login
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "email": "",
+    "password": "password123"
+  }
+}
+
+assert {
+  res.status: eq 400
+}
+
+docs {
+  # Login with Empty Email
+  
+  ## Expected Response
+  - Status: 400 Bad Request
+}

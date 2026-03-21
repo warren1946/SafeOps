@@ -1,0 +1,28 @@
+meta {
+  name: SQL Injection Test
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/core/mines/1%20OR%201=1
+  body: none
+  auth: bearer
+}
+
+headers {
+  X-Tenant-ID: {{tenantId}}
+  X-Tenant-Slug: {{tenantSlug}}
+}
+
+docs {
+  # SQL Injection Test
+  
+  ## Test
+  Attempt SQL injection via URL parameter
+  
+  ## Expected Response
+  - Should NOT return all mines
+  - Should return 404 or sanitize input
+  - No database error exposure
+}

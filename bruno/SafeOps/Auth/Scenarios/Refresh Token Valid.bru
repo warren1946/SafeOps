@@ -1,0 +1,38 @@
+meta {
+  name: Refresh Token Valid
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{baseUrl}}/api/v1/auth/refresh
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "refreshToken": "{{refreshToken}}"
+  }
+}
+
+script:post-response {
+  // Update tokens after refresh
+  const json = res.getBody();
+  if (json.data && json.data.accessToken) {
+    bru.setVar('accessToken', json.data.accessToken);
+    bru.setVar('refreshToken', json.data.refreshToken);
+  }
+}
+
+docs {
+  # Refresh Token - Valid
+  
+  ## Expected Response
+  - Status: 200 OK
+  - New accessToken and refreshToken returned
+}

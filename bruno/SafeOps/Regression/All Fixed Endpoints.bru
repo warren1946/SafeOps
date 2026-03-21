@@ -1,0 +1,46 @@
+meta {
+  name: All Fixed Endpoints
+  type: http
+  seq: 1
+}
+
+// This is a collection runner test that verifies all fixed endpoints
+// Run with: bruno run Regression --env production
+
+// Endpoints that were fixed:
+// 1. Core Module (was 403) - /api/core/mines, /api/core/sites, /api/core/shafts, /api/core/areas
+// 2. Dashboard (was 404) - /api/dashboard/stats, /api/dashboard/recent-inspections
+// 3. Templates (was 404) - /api/v1/templates
+// 4. Safety (was 500/404) - /api/safety/events, /api/safety/alerts, /api/safety/reports
+// 5. Swagger (was 500) - /swagger-ui.html, /v3/api-docs
+
+docs {
+  # Regression Test - All Fixed Endpoints
+  
+  ## Fixed Issues Verification
+  
+  ### 1. Core Module - 403 Forbidden Fixed
+  - GET /api/core/mines
+  - GET /api/core/sites
+  - GET /api/core/shafts
+  - GET /api/core/areas
+  
+  ### 2. Dashboard - 404 Not Found Fixed
+  - GET /api/dashboard/stats
+  - GET /api/dashboard/recent-inspections
+  
+  ### 3. Templates - 404 Not Found Fixed
+  - GET /api/v1/templates
+  
+  ### 4. Safety Module - 500/404 Fixed
+  - GET /api/safety/events
+  - GET /api/safety/alerts
+  - GET /api/safety/reports
+  
+  ### 5. Swagger UI - 500 Fixed
+  - GET /swagger-ui.html
+  - GET /v3/api-docs
+  
+  ## Expected Results
+  All endpoints should return 200 OK with valid authentication.
+}

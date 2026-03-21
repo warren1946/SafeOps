@@ -1,0 +1,31 @@
+meta {
+  name: Access With Invalid Token Format
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/api/core/mines
+  body: none
+  auth: bearer
+}
+
+headers {
+  X-Tenant-ID: {{tenantId}}
+  X-Tenant-Slug: {{tenantSlug}}
+}
+
+auth:bearer {
+  token: invalid_token_format_not_jwt
+}
+
+assert {
+  res.status: eq 401
+}
+
+docs {
+  # Access with Invalid Token Format
+  
+  ## Expected Response
+  - Status: 401 Unauthorized
+}

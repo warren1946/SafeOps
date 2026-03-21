@@ -1,0 +1,28 @@
+meta {
+  name: List Shafts
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/core/shafts
+  body: none
+  auth: bearer
+}
+
+headers {
+  X-Tenant-ID: {{tenantId}}
+  X-Tenant-Slug: {{tenantSlug}}
+}
+
+assert {
+  res.status: eq 200
+}
+
+docs {
+  # List Shafts
+  
+  ## Expected Response
+  - Status: 200 OK
+  - Returns list of shafts
+}

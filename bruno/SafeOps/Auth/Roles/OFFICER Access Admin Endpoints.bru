@@ -1,0 +1,36 @@
+meta {
+  name: OFFICER Access Admin Endpoints
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/api/admin/tenants
+  body: none
+  auth: bearer
+}
+
+headers {
+  X-Tenant-ID: {{tenantId}}
+  X-Tenant-Slug: {{tenantSlug}}
+}
+
+auth:bearer {
+  token: {{officerToken}}
+}
+
+assert {
+  res.status: eq 403
+}
+
+docs {
+  # OFFICER Attempting to Access Admin Endpoints
+  
+  ## Test Steps
+  1. Login as OFFICER (or use officerToken variable)
+  2. Try to access /api/admin/tenants
+  
+  ## Expected Response
+  - Status: 403 Forbidden
+  - OFFICER should not have access to admin endpoints
+}
