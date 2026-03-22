@@ -19,15 +19,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import org.example.project.domain.model.DashboardStatistics
 import org.example.project.ui.theme.MiningSafetyColors
 
 /**
  * Main dashboard content component displaying stats, charts, and lists
  *
+ * @param statistics Dashboard statistics data
  * @param modifier Modifier for styling
  */
 @Composable
 fun DashboardContent(
+    statistics: DashboardStatistics? = null,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -38,7 +41,7 @@ fun DashboardContent(
         
         Spacer(modifier = Modifier.height(20.dp))
         
-        StatsRow()
+        StatsRow(statistics = statistics)
         
         Spacer(modifier = Modifier.height(20.dp))
         
@@ -46,7 +49,7 @@ fun DashboardContent(
         
         Spacer(modifier = Modifier.height(16.dp))
         
-        ListsSection()
+        ListsSection(statistics = statistics)
     }
 }
 
@@ -61,7 +64,7 @@ private fun DashboardHeader() {
         fontWeight = FontWeight.Bold
     )
     Text(
-        text = "Mining safety overview - Friday, February 20, 2026",
+        text = "Mining safety overview",
         style = MaterialTheme.typography.bodyMedium,
         color = MiningSafetyColors.OnSurfaceVariant
     )
@@ -71,44 +74,46 @@ private fun DashboardHeader() {
  * Row of statistics cards
  */
 @Composable
-private fun StatsRow() {
+private fun StatsRow(statistics: DashboardStatistics?) {
+    val stats = statistics ?: DashboardStatistics()
+    
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         StatCard(
-            title = "TODAY'S INSPECTIONS",
-            value = "12",
-            subtitle = "+3 from yesterday",
-            subtitleColor = MiningSafetyColors.Success,
+            title = "TOTAL INSPECTIONS",
+            value = stats.totalInspections.toString(),
+            subtitle = "${stats.pendingInspections} pending",
+            subtitleColor = MiningSafetyColors.Warning,
             icon = "📋",
             iconBackground = Color(0xFFFEE2E2),
             modifier = Modifier.weight(1f)
         )
         StatCard(
             title = "OPEN HAZARDS",
-            value = "7",
-            subtitle = "2 critical",
-            subtitleColor = MiningSafetyColors.Error,
+            value = stats.openHazards.toString(),
+            subtitle = "${stats.criticalHazards} critical",
+            subtitleColor = if (stats.criticalHazards > 0) MiningSafetyColors.Error else MiningSafetyColors.Success,
             icon = "⚠️",
             iconBackground = Color(0xFFFEF3C7),
             modifier = Modifier.weight(1f)
         )
         StatCard(
-            title = "COMPLIANCE RATE",
-            value = "93%",
-            subtitle = "+2% this month",
+            title = "COMPLETED",
+            value = stats.completedInspections.toString(),
+            subtitle = "inspections done",
             subtitleColor = MiningSafetyColors.Success,
             icon = "✅",
             iconBackground = Color(0xFFD1FAE5),
             modifier = Modifier.weight(1f)
         )
         StatCard(
-            title = "WHATSAPP ACTIVE",
-            value = "24",
-            subtitle = "Officers online",
+            title = "TEAM MEMBERS",
+            value = stats.totalUsers.toString(),
+            subtitle = "Active users",
             subtitleColor = MiningSafetyColors.OnSurfaceVariant,
-            icon = "💬",
+            icon = "👥",
             iconBackground = Color(0xFFDBEAFE),
             modifier = Modifier.weight(1f)
         )
@@ -154,16 +159,22 @@ private fun ChartsSection() {
  * Lists section with recent inspections and active hazards
  */
 @Composable
-private fun ListsSection() {
+private fun ListsSection(statistics: DashboardStatistics?) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         // Recent Inspections
-        RecentInspectionsCard(modifier = Modifier.weight(1f))
+        RecentInspectionsCard(
+            statistics = statistics,
+            modifier = Modifier.weight(1f)
+        )
         
         // Active Hazards
-        ActiveHazardsCard(modifier = Modifier.weight(1f))
+        ActiveHazardsCard(
+            statistics = statistics,
+            modifier = Modifier.weight(1f)
+        )
     }
 }
 
@@ -171,7 +182,10 @@ private fun ListsSection() {
  * Card displaying recent inspections list
  */
 @Composable
-private fun RecentInspectionsCard(modifier: Modifier = Modifier) {
+private fun RecentInspectionsCard(
+    statistics: DashboardStatistics?,
+    modifier: Modifier = Modifier
+) {
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(12.dp),
@@ -183,61 +197,47 @@ private fun RecentInspectionsCard(modifier: Modifier = Modifier) {
             modifier = Modifier.padding(16.dp)
         ) {
             SectionHeader(
-                title = "RECENT INSPECTIONS",
+                title = "RECENT ACTIVITY",
                 onViewAll = {}
             )
             
             Spacer(modifier = Modifier.height(8.dp))
             
-            InspectionListItem(
-                title = "Shaft A - Level 3",
-                officer = "Mike Johnson",
-                date = "2026-02-08",
-                score = "94%",
-                status = "Completed",
-                statusColor = MiningSafetyColors.Success
-            )
-            InspectionListItem(
-                title = "Processing Plant",
-                officer = "Sarah Williams",
-                date = "2026-02-08",
-                score = null,
-                status = "In-Progress",
-                statusColor = MiningSafetyColors.Primary
-            )
-            InspectionListItem(
-                title = "Tailings Dam B",
-                officer = "Carlos Rivera",
-                date = "2026-02-07",
-                score = "78%",
-                status = "Completed",
-                statusColor = MiningSafetyColors.Warning
-            )
-            InspectionListItem(
-                title = "Underground Tunnel 5",
-                officer = "Aisha Patel",
-                date = "2026-02-07",
-                score = "88%",
-                status = "Completed",
-                statusColor = MiningSafetyColors.Success
-            )
-            InspectionListItem(
-                title = "Equipment Yard",
-                officer = "Tom Baker",
-                date = "2026-02-06",
-                score = "52%",
-                status = "Flagged",
-                statusColor = MiningSafetyColors.Error
-            )
+            if (statistics?.recentActivity.isNullOrEmpty()) {
+                Text(
+                    text = "No recent activity",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MiningSafetyColors.OnSurfaceVariant
+                )
+            } else {
+                statistics?.recentActivity?.take(5)?.forEach { activity ->
+                    ActivityListItem(
+                        title = activity.description,
+                        subtitle = activity.userName ?: "System",
+                        timestamp = activity.timestamp.take(10),
+                        icon = when (activity.type) {
+                            org.example.project.domain.model.ActivityType.INSPECTION_CREATED,
+                            org.example.project.domain.model.ActivityType.INSPECTION_COMPLETED -> "📋"
+                            org.example.project.domain.model.ActivityType.HAZARD_REPORTED,
+                            org.example.project.domain.model.ActivityType.HAZARD_RESOLVED -> "⚠️"
+                            org.example.project.domain.model.ActivityType.USER_REGISTERED,
+                            org.example.project.domain.model.ActivityType.USER_LOGIN -> "👤"
+                        }
+                    )
+                }
+            }
         }
     }
 }
 
 /**
- * Card displaying active hazards list
+ * Card displaying active hazards summary
  */
 @Composable
-private fun ActiveHazardsCard(modifier: Modifier = Modifier) {
+private fun ActiveHazardsCard(
+    statistics: DashboardStatistics?,
+    modifier: Modifier = Modifier
+) {
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(12.dp),
@@ -249,30 +249,57 @@ private fun ActiveHazardsCard(modifier: Modifier = Modifier) {
             modifier = Modifier.padding(16.dp)
         ) {
             SectionHeader(
-                title = "ACTIVE HAZARDS",
+                title = "HAZARD SUMMARY",
                 onViewAll = {}
             )
             
             Spacer(modifier = Modifier.height(8.dp))
             
-            HazardListItem(
-                title = "Loose rock fall risk - Shaft A",
-                location = "Shaft A - Level 3",
-                severity = "Critical",
-                severityColor = MiningSafetyColors.Error
+            // Show hazard counts by severity
+            HazardSummaryItem(
+                label = "Critical Hazards",
+                count = statistics?.criticalHazards?.toString() ?: "0",
+                color = MiningSafetyColors.Error
             )
-            HazardListItem(
-                title = "Water seepage near electrical panel",
-                location = "Processing Plant",
-                severity = "High",
-                severityColor = MiningSafetyColors.Warning
+            HazardSummaryItem(
+                label = "Open Hazards",
+                count = statistics?.openHazards?.toString() ?: "0",
+                color = MiningSafetyColors.Warning
             )
-            HazardListItem(
-                title = "Excessive dust levels",
-                location = "Underground Tunnel 5",
-                severity = "High",
-                severityColor = MiningSafetyColors.Warning
+            
+            Spacer(modifier = Modifier.height(12.dp))
+            
+            Text(
+                text = "Stay vigilant and report any safety concerns immediately.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MiningSafetyColors.OnSurfaceVariant
             )
         }
+    }
+}
+
+@Composable
+private fun HazardSummaryItem(
+    label: String,
+    count: String,
+    color: Color
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MiningSafetyColors.OnSurface
+        )
+        Text(
+            text = count,
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.Bold,
+            color = color
+        )
     }
 }

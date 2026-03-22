@@ -10,9 +10,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import org.example.project.di.ServiceLocator
+import org.example.project.presentation.viewmodel.DashboardViewModel
 import org.example.project.ui.components.*
 import org.example.project.ui.components.LogoVariant
 import org.example.project.ui.components.SafeOpsLogo
+import org.example.project.domain.model.DashboardStatistics
 import org.example.project.ui.theme.MiningSafetyColors
 
 /**
@@ -34,13 +37,24 @@ data class BottomNavItem(
 /**
  * Main dashboard screen with responsive navigation
  *
+ * @param viewModel DashboardViewModel instance
  * @param onLogout Callback when user logs out
  */
 @Composable
 fun DashboardScreen(
+    viewModel: DashboardViewModel = remember { ServiceLocator.provideDashboardViewModel() },
     onLogout: () -> Unit = {}
 ) {
+    val uiState by viewModel.uiState.collectAsState()
     var selectedTab by remember { mutableStateOf(DashboardTab.DASHBOARD) }
+    
+    // Handle logout
+    LaunchedEffect(uiState.isLoggedOut) {
+        if (uiState.isLoggedOut) {
+            onLogout()
+            viewModel.resetState()
+        }
+    }
     
     // Responsive layout
     BoxWithConstraints(
@@ -54,14 +68,16 @@ fun DashboardScreen(
             DashboardMobileLayout(
                 selectedTab = selectedTab,
                 onTabSelected = { selectedTab = it },
-                onLogout = onLogout
+                onLogout = { viewModel.logout() },
+                statistics = uiState.statistics
             )
         } else {
             // Desktop/Tablet layout with sidebar
             DashboardDesktopLayout(
                 selectedTab = selectedTab,
                 onTabSelected = { selectedTab = it },
-                onLogout = onLogout
+                onLogout = { viewModel.logout() },
+                statistics = uiState.statistics
             )
         }
     }
@@ -74,7 +90,8 @@ fun DashboardScreen(
 private fun DashboardMobileLayout(
     selectedTab: DashboardTab,
     onTabSelected: (DashboardTab) -> Unit,
-    onLogout: () -> Unit
+    onLogout: () -> Unit,
+    statistics: DashboardStatistics?
 ) {
     val bottomNavItems = listOf(
         BottomNavItem("📊", "Home", DashboardTab.DASHBOARD),
@@ -107,6 +124,7 @@ private fun DashboardMobileLayout(
         ) {
             DashboardTabContent(
                 selectedTab = selectedTab,
+                statistics = statistics,
                 onLogout = onLogout
             )
         }
@@ -120,7 +138,8 @@ private fun DashboardMobileLayout(
 private fun DashboardDesktopLayout(
     selectedTab: DashboardTab,
     onTabSelected: (DashboardTab) -> Unit,
-    onLogout: () -> Unit
+    onLogout: () -> Unit,
+    statistics: DashboardStatistics?
 ) {
     Row(
         modifier = Modifier.fillMaxSize()
@@ -152,6 +171,7 @@ private fun DashboardDesktopLayout(
             ) {
                 DashboardTabContent(
                     selectedTab = selectedTab,
+                    statistics = statistics,
                     onLogout = onLogout
                 )
             }
@@ -272,10 +292,11 @@ private fun DashboardBottomBar(
 @Composable
 private fun DashboardTabContent(
     selectedTab: DashboardTab,
+    statistics: DashboardStatistics?,
     onLogout: () -> Unit
 ) {
     when (selectedTab) {
-        DashboardTab.DASHBOARD -> DashboardContent()
+        DashboardTab.DASHBOARD -> DashboardContent(statistics = statistics)
         DashboardTab.INSPECTIONS -> InspectionsTab()
         DashboardTab.HAZARDS -> HazardsTab()
         DashboardTab.REPORTS -> ReportsTab()

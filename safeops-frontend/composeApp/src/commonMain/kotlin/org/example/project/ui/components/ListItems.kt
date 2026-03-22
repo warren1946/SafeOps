@@ -217,3 +217,62 @@ private fun TextButton(
         content()
     }
 }
+
+/**
+ * List item component for displaying activity data
+ *
+ * @param title Activity title/description
+ * @param subtitle Activity subtitle (user name)
+ * @param timestamp Activity timestamp
+ * @param icon Icon emoji for the activity type
+ * @param modifier Modifier for styling
+ */
+@Composable
+fun ActivityListItem(
+    title: String,
+    subtitle: String,
+    timestamp: String,
+    icon: String,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        verticalAlignment = Alignment.Top
+    ) {
+        Text(
+            text = icon,
+            style = MaterialTheme.typography.bodyMedium
+        )
+        
+        Spacer(modifier = Modifier.width(12.dp))
+        
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.SemiBold
+            )
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MiningSafetyColors.OnSurfaceVariant
+                )
+                Text(
+                    text = "•",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MiningSafetyColors.OnSurfaceVariant
+                )
+                Text(
+                    text = timestamp,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MiningSafetyColors.OnSurfaceVariant
+                )
+            }
+        }
+    }
+}

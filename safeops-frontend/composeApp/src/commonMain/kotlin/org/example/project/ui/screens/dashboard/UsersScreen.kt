@@ -10,59 +10,37 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import org.example.project.ui.components.DataTable
+import org.example.project.di.ServiceLocator
+import org.example.project.domain.model.User
+import org.example.project.domain.model.UserRole
+import org.example.project.presentation.viewmodel.UsersViewModel
+import org.example.project.ui.components.CardSkeleton
+import org.example.project.ui.components.EmptyState
+import org.example.project.ui.components.FullScreenError
+import org.example.project.ui.components.InlineError
 import org.example.project.ui.components.StatusBadge
-import org.example.project.ui.components.TableCell
-import org.example.project.ui.components.TableRow
-import org.example.project.ui.components.TableStatusCell
 import org.example.project.ui.theme.MiningSafetyColors
 
 /**
- * User role enum
- */
-enum class UserRole(val label: String, val icon: String) {
-    ADMIN("Admin", "👤"),
-    SAFETY_OFFICER("Safety Officer", "🦺"),
-    MANAGER("Manager", "📊"),
-    SUPERVISOR("Supervisor", "👷")
-}
-
-/**
- * User status enum
- */
-enum class UserStatus(val label: String, val color: Color) {
-    ACTIVE("Active", MiningSafetyColors.Success),
-    INACTIVE("Inactive", MiningSafetyColors.OnSurfaceVariant)
-}
-
-/**
- * Data class for user
- */
-data class User(
-    val id: String,
-    val name: String,
-    val email: String,
-    val role: UserRole,
-    val phone: String,
-    val status: UserStatus
-)
-
-/**
- * Users screen with user management table
+ * Users screen with user management table - connected to ViewModel
  */
 @Composable
-fun UsersScreen() {
-    val users = rememberUsersData()
+fun UsersScreen(
+    viewModel: UsersViewModel = remember { ServiceLocator.provideUsersViewModel() }
+) {
+    val uiState by viewModel.uiState.collectAsState()
     
     Column(
         modifier = Modifier
@@ -75,12 +53,51 @@ fun UsersScreen() {
         Spacer(modifier = Modifier.height(20.dp))
         
         // Actions
-        UsersActionsRow()
+        UsersActionsRow(
+            onRefresh = viewModel::refreshUsers
+        )
         
         Spacer(modifier = Modifier.height(16.dp))
         
-        // Users table
-        UsersTable(users = users)
+        // Content based on state
+        when {
+            uiState.isLoading && uiState.users.isEmpty() -> {
+                // Show skeleton loaders
+                repeat(4) {
+                    CardSkeleton()
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+            }
+            uiState.error != null && uiState.users.isEmpty() -> {
+                FullScreenError(
+                    message = uiState.error ?: "Failed to load users",
+                    onRetry = viewModel::refreshUsers
+                )
+            }
+            uiState.users.isEmpty() -> {
+                EmptyState(
+                    icon = "👥",
+                    title = "No users found",
+                    message = "There are no users in the system yet. Add users to get started."
+                )
+            }
+            else -> {
+                // Show error banner if there's an error but we have cached data
+                if (uiState.error != null) {
+                    InlineError(
+                        message = uiState.error ?: "Update failed",
+                        onRetry = viewModel::refreshUsers,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                }
+                
+                // Users table
+                UsersTable(
+                    users = uiState.users,
+                    onUserClick = viewModel::selectUser
+                )
+            }
+        }
     }
 }
 
@@ -99,7 +116,9 @@ private fun UsersHeader() {
 }
 
 @Composable
-private fun UsersActionsRow() {
+private fun UsersActionsRow(
+    onRefresh: () -> Unit
+) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -112,6 +131,15 @@ private fun UsersActionsRow() {
             )
         ) {
             Text("🔍 Search", color = MiningSafetyColors.OnSurface)
+        }
+        
+        Button(
+            onClick = onRefresh,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MiningSafetyColors.SurfaceVariant
+            )
+        ) {
+            Text("🔄 Refresh", color = MiningSafetyColors.OnSurface)
         }
         
         Spacer(modifier = Modifier.weight(1f))
@@ -128,7 +156,10 @@ private fun UsersActionsRow() {
 }
 
 @Composable
-private fun UsersTable(users: List<User>) {
+private fun UsersTable(
+    users: List<User>,
+    onUserClick: (User) -> Unit
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
@@ -147,7 +178,7 @@ private fun UsersTable(users: List<User>) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Name",
+                    text = "User",
                     style = MaterialTheme.typography.labelSmall,
                     color = MiningSafetyColors.OnSurfaceVariant,
                     fontWeight = FontWeight.SemiBold,
@@ -155,13 +186,6 @@ private fun UsersTable(users: List<User>) {
                 )
                 Text(
                     text = "Role",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MiningSafetyColors.OnSurfaceVariant,
-                    fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.weight(1f)
-                )
-                Text(
-                    text = "Phone",
                     style = MaterialTheme.typography.labelSmall,
                     color = MiningSafetyColors.OnSurfaceVariant,
                     fontWeight = FontWeight.SemiBold,
@@ -178,14 +202,20 @@ private fun UsersTable(users: List<User>) {
             
             // Rows
             users.forEach { user ->
-                UserRow(user = user)
+                UserRow(
+                    user = user,
+                    onClick = { onUserClick(user) }
+                )
             }
         }
     }
 }
 
 @Composable
-private fun UserRow(user: User) {
+private fun UserRow(
+    user: User,
+    onClick: () -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -206,7 +236,7 @@ private fun UserRow(user: User) {
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = user.name.take(2).uppercase(),
+                    text = user.email.take(2).uppercase(),
                     color = Color.White,
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.Bold
@@ -217,7 +247,7 @@ private fun UserRow(user: User) {
             
             Column {
                 Text(
-                    text = user.name,
+                    text = user.email.substringBefore("@"),
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.SemiBold
                 )
@@ -234,19 +264,17 @@ private fun UserRow(user: User) {
             modifier = Modifier.weight(1f),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            val roleDisplay = when (user.roles.firstOrNull()) {
+                UserRole.ADMIN -> "👤 Admin"
+                UserRole.SUPERVISOR -> "👷 Supervisor"
+                UserRole.OFFICER -> "🦺 Officer"
+                null -> "👤 Unknown"
+            }
             Text(
-                text = user.role.icon + " " + user.role.label,
+                text = roleDisplay,
                 style = MaterialTheme.typography.bodySmall
             )
         }
-        
-        // Phone
-        Text(
-            text = user.phone,
-            style = MaterialTheme.typography.bodySmall,
-            color = MiningSafetyColors.OnSurfaceVariant,
-            modifier = Modifier.weight(1f)
-        )
         
         // Status
         Box(
@@ -254,63 +282,9 @@ private fun UserRow(user: User) {
             contentAlignment = Alignment.CenterStart
         ) {
             StatusBadge(
-                status = user.status.label,
-                color = user.status.color
+                status = if (user.isActive) "Active" else "Inactive",
+                color = if (user.isActive) MiningSafetyColors.Success else MiningSafetyColors.OnSurfaceVariant
             )
         }
     }
-}
-
-@Composable
-private fun rememberUsersData(): List<User> {
-    return listOf(
-        User(
-            id = "USR-001",
-            name = "John Doe",
-            email = "john@safeops.io",
-            role = UserRole.ADMIN,
-            phone = "+27 82 123 4567",
-            status = UserStatus.ACTIVE
-        ),
-        User(
-            id = "USR-002",
-            name = "Mike Johnson",
-            email = "mike@safeops.io",
-            role = UserRole.SAFETY_OFFICER,
-            phone = "+27 83 234 5678",
-            status = UserStatus.ACTIVE
-        ),
-        User(
-            id = "USR-003",
-            name = "Sarah Williams",
-            email = "sarah@safeops.io",
-            role = UserRole.SAFETY_OFFICER,
-            phone = "+27 84 345 6789",
-            status = UserStatus.ACTIVE
-        ),
-        User(
-            id = "USR-004",
-            name = "Carlos Rivera",
-            email = "carlos@safeops.io",
-            role = UserRole.SAFETY_OFFICER,
-            phone = "+27 85 456 7890",
-            status = UserStatus.ACTIVE
-        ),
-        User(
-            id = "USR-005",
-            name = "Aisha Patel",
-            email = "aisha@safeops.io",
-            role = UserRole.MANAGER,
-            phone = "+27 86 567 8901",
-            status = UserStatus.ACTIVE
-        ),
-        User(
-            id = "USR-006",
-            name = "Tom Baker",
-            email = "tom@safeops.io",
-            role = UserRole.SAFETY_OFFICER,
-            phone = "+27 87 678 9012",
-            status = UserStatus.INACTIVE
-        )
-    )
 }

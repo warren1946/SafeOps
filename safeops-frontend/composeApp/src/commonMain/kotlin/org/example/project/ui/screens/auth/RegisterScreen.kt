@@ -5,17 +5,20 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,9 +27,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import org.example.project.di.ServiceLocator
+import org.example.project.presentation.viewmodel.RegisterViewModel
 import org.example.project.ui.components.AuthDivider
 import org.example.project.ui.components.AuthFooterLink
 import org.example.project.ui.components.AuthPrimaryButton
@@ -40,106 +44,51 @@ import org.example.project.ui.theme.MiningSafetyColors
 /**
  * Registration screen with responsive layout
  *
+ * @param viewModel RegisterViewModel instance
  * @param onRegisterSuccess Callback when registration succeeds
  * @param onNavigateToLogin Callback to navigate to login
  */
 @Composable
 fun RegisterScreen(
+    viewModel: RegisterViewModel = remember { ServiceLocator.provideRegisterViewModel() },
     onRegisterSuccess: () -> Unit = {},
     onNavigateToLogin: () -> Unit = {}
 ) {
-    val scope = rememberCoroutineScope()
-    
-    // Form state
-    var fullName by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
-    var phone by remember { mutableStateOf("") }
-    var company by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var confirmPassword by remember { mutableStateOf("") }
+    val uiState by viewModel.uiState.collectAsState()
     var isPasswordVisible by remember { mutableStateOf(false) }
     var agreeToTerms by remember { mutableStateOf(false) }
-    var isLoading by remember { mutableStateOf(false) }
-    
-    // Error states
-    var fullNameError by remember { mutableStateOf<String?>(null) }
-    var emailError by remember { mutableStateOf<String?>(null) }
-    var phoneError by remember { mutableStateOf<String?>(null) }
-    var companyError by remember { mutableStateOf<String?>(null) }
-    var passwordError by remember { mutableStateOf<String?>(null) }
-    var confirmPasswordError by remember { mutableStateOf<String?>(null) }
     var termsError by remember { mutableStateOf<String?>(null) }
+    var showSuccessDialog by remember { mutableStateOf(false) }
     
-    fun validateForm(): Boolean {
-        var isValid = true
-        
-        if (fullName.isBlank()) {
-            fullNameError = "Full name is required"
-            isValid = false
-        } else {
-            fullNameError = null
-        }
-        
-        if (email.isBlank()) {
-            emailError = "Email is required"
-            isValid = false
-        } else if (!email.contains("@")) {
-            emailError = "Invalid email format"
-            isValid = false
-        } else {
-            emailError = null
-        }
-        
-        if (phone.isBlank()) {
-            phoneError = "Phone number is required"
-            isValid = false
-        } else {
-            phoneError = null
-        }
-        
-        if (company.isBlank()) {
-            companyError = "Company/Mine name is required"
-            isValid = false
-        } else {
-            companyError = null
-        }
-        
-        if (password.isBlank()) {
-            passwordError = "Password is required"
-            isValid = false
-        } else if (password.length < 8) {
-            passwordError = "Password must be at least 8 characters"
-            isValid = false
-        } else {
-            passwordError = null
-        }
-        
-        if (confirmPassword != password) {
-            confirmPasswordError = "Passwords do not match"
-            isValid = false
-        } else {
-            confirmPasswordError = null
-        }
-        
-        if (!agreeToTerms) {
-            termsError = "You must agree to the terms"
-            isValid = false
-        } else {
-            termsError = null
-        }
-        
-        return isValid
+    // Handle successful registration - show dialog instead of auto-navigating
+    if (uiState.isSuccess && !showSuccessDialog) {
+        showSuccessDialog = true
     }
     
-    fun performRegister() {
-        if (!validateForm()) return
-        
-        isLoading = true
-        scope.launch {
-            delay(2000)
-            isLoading = false
-            onRegisterSuccess()
+    // Success Dialog
+    if (showSuccessDialog) {
+        RegistrationSuccessDialog(
+            onLoginClick = {
+                showSuccessDialog = false
+                viewModel.resetState()
+                agreeToTerms = false
+                onNavigateToLogin()
+            },
+            onStayClick = {
+                showSuccessDialog = false
+                viewModel.resetState()
+                agreeToTerms = false
+            }
+        )
+    }
+    
+    fun validateAndRegister() {
+        if (!agreeToTerms) {
+            termsError = "You must agree to the terms"
+            return
         }
+        termsError = null
+        viewModel.register()
     }
     
     // Responsive layout
@@ -149,29 +98,41 @@ fun RegisterScreen(
         val maxWidth = maxWidth
         val isCompact = maxWidth < 600.dp  // Phone
         
+        // Determine field errors vs API error
+        val fullNameError = uiState.error.takeIf { uiState.fullName.isBlank() && uiState.error != null }
+        val emailFormatError = !uiState.email.contains("@") || !uiState.email.contains(".")
+        val emailError = uiState.error.takeIf { uiState.email.isNotBlank() && emailFormatError }
+        val phoneError = uiState.error.takeIf { uiState.phone.isBlank() && uiState.error != null }
+        val companyError = uiState.error.takeIf { uiState.company.isBlank() && uiState.error != null }
+        val passwordError = uiState.error.takeIf { uiState.password.length in 1..5 }
+        val confirmPasswordError = uiState.error.takeIf { 
+            uiState.confirmPassword.isNotBlank() && uiState.confirmPassword != uiState.password 
+        }
+        // API error - only when all fields are filled but there's still an error
+        val apiError = uiState.error?.takeIf { 
+            uiState.fullName.isNotBlank() && uiState.email.isNotBlank() && 
+            uiState.phone.isNotBlank() && uiState.company.isNotBlank() &&
+            uiState.password.isNotBlank() && uiState.confirmPassword.isNotBlank() &&
+            !fullNameError.isNullOrBlank() == false && !emailError.isNullOrBlank() == false &&
+            !phoneError.isNullOrBlank() == false && !companyError.isNullOrBlank() == false &&
+            !passwordError.isNullOrBlank() == false && !confirmPasswordError.isNullOrBlank() == false
+        }
+        
         if (isCompact) {
             // Mobile layout
             RegisterMobileLayout(
-                fullName = fullName,
-                onFullNameChange = { fullName = it; fullNameError = null },
-                email = email,
-                onEmailChange = { email = it; emailError = null },
-                phone = phone,
-                onPhoneChange = { phone = it; phoneError = null },
-                company = company,
-                onCompanyChange = { company = it; companyError = null },
-                password = password,
-                onPasswordChange = { 
-                    password = it
-                    passwordError = null
-                    if (confirmPassword.isNotEmpty() && confirmPassword != it) {
-                        confirmPasswordError = "Passwords do not match"
-                    } else {
-                        confirmPasswordError = null
-                    }
-                },
-                confirmPassword = confirmPassword,
-                onConfirmPasswordChange = { confirmPassword = it; confirmPasswordError = null },
+                fullName = uiState.fullName,
+                onFullNameChange = viewModel::onFullNameChange,
+                email = uiState.email,
+                onEmailChange = viewModel::onEmailChange,
+                phone = uiState.phone,
+                onPhoneChange = viewModel::onPhoneChange,
+                company = uiState.company,
+                onCompanyChange = viewModel::onCompanyChange,
+                password = uiState.password,
+                onPasswordChange = viewModel::onPasswordChange,
+                confirmPassword = uiState.confirmPassword,
+                onConfirmPasswordChange = viewModel::onConfirmPasswordChange,
                 isPasswordVisible = isPasswordVisible,
                 onTogglePasswordVisibility = { isPasswordVisible = !isPasswordVisible },
                 agreeToTerms = agreeToTerms,
@@ -182,34 +143,27 @@ fun RegisterScreen(
                 companyError = companyError,
                 passwordError = passwordError,
                 confirmPasswordError = confirmPasswordError,
+                apiError = apiError,
                 termsError = termsError,
-                isLoading = isLoading,
-                onRegister = { performRegister() },
+                isLoading = uiState.isLoading,
+                onRegister = { validateAndRegister() },
                 onNavigateToLogin = onNavigateToLogin
             )
         } else {
             // Desktop layout
             RegisterDesktopLayout(
-                fullName = fullName,
-                onFullNameChange = { fullName = it; fullNameError = null },
-                email = email,
-                onEmailChange = { email = it; emailError = null },
-                phone = phone,
-                onPhoneChange = { phone = it; phoneError = null },
-                company = company,
-                onCompanyChange = { company = it; companyError = null },
-                password = password,
-                onPasswordChange = { 
-                    password = it
-                    passwordError = null
-                    if (confirmPassword.isNotEmpty() && confirmPassword != it) {
-                        confirmPasswordError = "Passwords do not match"
-                    } else {
-                        confirmPasswordError = null
-                    }
-                },
-                confirmPassword = confirmPassword,
-                onConfirmPasswordChange = { confirmPassword = it; confirmPasswordError = null },
+                fullName = uiState.fullName,
+                onFullNameChange = viewModel::onFullNameChange,
+                email = uiState.email,
+                onEmailChange = viewModel::onEmailChange,
+                phone = uiState.phone,
+                onPhoneChange = viewModel::onPhoneChange,
+                company = uiState.company,
+                onCompanyChange = viewModel::onCompanyChange,
+                password = uiState.password,
+                onPasswordChange = viewModel::onPasswordChange,
+                confirmPassword = uiState.confirmPassword,
+                onConfirmPasswordChange = viewModel::onConfirmPasswordChange,
                 isPasswordVisible = isPasswordVisible,
                 onTogglePasswordVisibility = { isPasswordVisible = !isPasswordVisible },
                 agreeToTerms = agreeToTerms,
@@ -220,9 +174,10 @@ fun RegisterScreen(
                 companyError = companyError,
                 passwordError = passwordError,
                 confirmPasswordError = confirmPasswordError,
+                apiError = apiError,
                 termsError = termsError,
-                isLoading = isLoading,
-                onRegister = { performRegister() },
+                isLoading = uiState.isLoading,
+                onRegister = { validateAndRegister() },
                 onNavigateToLogin = onNavigateToLogin
             )
         }
@@ -256,6 +211,7 @@ private fun RegisterMobileLayout(
     companyError: String?,
     passwordError: String?,
     confirmPasswordError: String?,
+    apiError: String?,
     termsError: String?,
     isLoading: Boolean,
     onRegister: () -> Unit,
@@ -321,6 +277,7 @@ private fun RegisterMobileLayout(
             companyError = companyError,
             passwordError = passwordError,
             confirmPasswordError = confirmPasswordError,
+            apiError = apiError,
             termsError = termsError,
             isLoading = isLoading,
             onRegister = onRegister,
@@ -359,6 +316,7 @@ private fun RegisterDesktopLayout(
     companyError: String?,
     passwordError: String?,
     confirmPasswordError: String?,
+    apiError: String?,
     termsError: String?,
     isLoading: Boolean,
     onRegister: () -> Unit,
@@ -405,6 +363,7 @@ private fun RegisterDesktopLayout(
                 companyError = companyError,
                 passwordError = passwordError,
                 confirmPasswordError = confirmPasswordError,
+                apiError = apiError,
                 termsError = termsError,
                 isLoading = isLoading,
                 onRegister = onRegister,
@@ -444,6 +403,7 @@ private fun RegisterCard(
     companyError: String?,
     passwordError: String?,
     confirmPasswordError: String?,
+    apiError: String?,
     termsError: String?,
     isLoading: Boolean,
     onRegister: () -> Unit,
@@ -478,6 +438,35 @@ private fun RegisterCard(
             )
             
             Spacer(modifier = Modifier.height(20.dp))
+            
+            // API Error Banner (shown when registration fails)
+            if (apiError != null) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MiningSafetyColors.Error.copy(alpha = 0.1f)
+                    ),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            text = "⚠️",
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                        Text(
+                            text = apiError,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MiningSafetyColors.Error,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+            }
             
             // Form fields
             SafeOpsTextField(
@@ -673,5 +662,104 @@ private fun FeatureItem(icon: String, text: String) {
             style = MaterialTheme.typography.bodyMedium,
             color = Color.White.copy(alpha = 0.9f)
         )
+    }
+}
+
+/**
+ * Registration Success Dialog
+ * Shown after successful registration with options to login or stay
+ */
+@Composable
+private fun RegistrationSuccessDialog(
+    onLoginClick: () -> Unit,
+    onStayClick: () -> Unit
+) {
+    androidx.compose.ui.window.Dialog(
+        onDismissRequest = { /* Prevent dismissal by clicking outside */ }
+    ) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(24.dp),
+            shape = RoundedCornerShape(24.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MiningSafetyColors.Surface
+            ),
+            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+        ) {
+            Column(
+                modifier = Modifier.padding(32.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // Success Icon
+                Box(
+                    modifier = Modifier
+                        .size(80.dp)
+                        .clip(RoundedCornerShape(40.dp))
+                        .background(MiningSafetyColors.Success.copy(alpha = 0.1f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "🎉",
+                        style = MaterialTheme.typography.displayMedium
+                    )
+                }
+                
+                Spacer(modifier = Modifier.height(20.dp))
+                
+                // Title
+                Text(
+                    text = "Registration Successful!",
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MiningSafetyColors.OnBackground,
+                    textAlign = TextAlign.Center
+                )
+                
+                Spacer(modifier = Modifier.height(12.dp))
+                
+                // Message
+                Text(
+                    text = "Your account has been created successfully. Would you like to log in now?",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MiningSafetyColors.OnSurfaceVariant,
+                    textAlign = TextAlign.Center
+                )
+                
+                Spacer(modifier = Modifier.height(28.dp))
+                
+                // Buttons
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    // Yes, Log me in button
+                    Button(
+                        onClick = onLoginClick,
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MiningSafetyColors.Primary
+                        ),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text(
+                            text = "Yes, Log me in",
+                            modifier = Modifier.padding(vertical = 8.dp)
+                        )
+                    }
+                    
+                    // No, stay here button
+                    TextButton(
+                        onClick = onStayClick,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = "No, stay here",
+                            color = MiningSafetyColors.OnSurfaceVariant
+                        )
+                    }
+                }
+            }
+        }
     }
 }

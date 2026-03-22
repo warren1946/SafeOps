@@ -8,13 +8,24 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import org.example.project.di.ServiceLocator
+import org.example.project.domain.model.Inspection
+import org.example.project.domain.model.InspectionStatus
+import org.example.project.domain.model.Result
+import org.example.project.presentation.viewmodel.InspectionsViewModel
 import org.example.project.ui.components.DataTable
+import org.example.project.ui.components.EmptyState
+import org.example.project.ui.components.FullScreenError
+import org.example.project.ui.components.FullScreenLoading
+import org.example.project.ui.components.InlineError
 import org.example.project.ui.components.SectionHeader
-import org.example.project.ui.components.StatusBadge
 import org.example.project.ui.components.TableCell
 import org.example.project.ui.components.TableRow
 import org.example.project.ui.components.TableScoreCell
@@ -22,34 +33,13 @@ import org.example.project.ui.components.TableStatusCell
 import org.example.project.ui.theme.MiningSafetyColors
 
 /**
- * Data class representing an inspection
- */
-data class Inspection(
-    val id: String,
-    val site: String,
-    val location: String,
-    val officer: String,
-    val date: String,
-    val score: String?,
-    val status: InspectionStatus
-)
-
-/**
- * Inspection status enum
- */
-enum class InspectionStatus(val label: String, val color: androidx.compose.ui.graphics.Color) {
-    COMPLETED("Completed", MiningSafetyColors.Success),
-    IN_PROGRESS("In-Progress", MiningSafetyColors.Primary),
-    FLAGGED("Flagged", MiningSafetyColors.Error),
-    SCHEDULED("Scheduled", MiningSafetyColors.Warning)
-}
-
-/**
- * Inspections screen with data table
+ * Inspections screen with data table - connected to ViewModel
  */
 @Composable
-fun InspectionsScreen() {
-    val inspections = rememberInspectionsData()
+fun InspectionsScreen(
+    viewModel: InspectionsViewModel = remember { ServiceLocator.provideInspectionsViewModel() }
+) {
+    val uiState by viewModel.uiState.collectAsState()
     
     Column(
         modifier = Modifier
@@ -62,16 +52,45 @@ fun InspectionsScreen() {
         Spacer(modifier = Modifier.height(20.dp))
         
         // Actions row
-        InspectionsActionsRow()
+        InspectionsActionsRow(
+            onRefresh = viewModel::refreshInspections
+        )
         
         Spacer(modifier = Modifier.height(16.dp))
         
-        // Inspections table
-        DataTable(
-            columns = listOf("ID", "Site / Location", "Officer", "Date", "Score", "Status")
-        ) {
-            inspections.forEach { inspection ->
-                InspectionRow(inspection = inspection)
+        // Content based on state
+        when {
+            uiState.isLoading && uiState.inspections.isEmpty() -> {
+                FullScreenLoading("Loading inspections...")
+            }
+            uiState.error != null && uiState.inspections.isEmpty() -> {
+                FullScreenError(
+                    message = uiState.error ?: "Failed to load inspections",
+                    onRetry = viewModel::refreshInspections
+                )
+            }
+            uiState.inspections.isEmpty() -> {
+                EmptyState(
+                    icon = "📋",
+                    title = "No inspections found",
+                    message = "There are no inspections to display. Create your first inspection to get started."
+                )
+            }
+            else -> {
+                // Show error banner if there's an error but we have cached data
+                if (uiState.error != null) {
+                    InlineError(
+                        message = uiState.error ?: "Update failed",
+                        onRetry = viewModel::refreshInspections,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                }
+                
+                // Inspections table
+                InspectionsTable(
+                    inspections = uiState.inspections,
+                    onInspectionClick = viewModel::selectInspection
+                )
             }
         }
     }
@@ -92,7 +111,9 @@ private fun InspectionsHeader() {
 }
 
 @Composable
-private fun InspectionsActionsRow() {
+private fun InspectionsActionsRow(
+    onRefresh: () -> Unit
+) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -106,6 +127,16 @@ private fun InspectionsActionsRow() {
             )
         ) {
             Text("🔍 Filter", color = MiningSafetyColors.OnSurface)
+        }
+        
+        // Refresh button
+        Button(
+            onClick = onRefresh,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MiningSafetyColors.SurfaceVariant
+            )
+        ) {
+            Text("🔄 Refresh", color = MiningSafetyColors.OnSurface)
         }
         
         // Export button
@@ -133,82 +164,55 @@ private fun InspectionsActionsRow() {
 }
 
 @Composable
-private fun InspectionRow(inspection: Inspection) {
-    TableRow {
-        TableCell(
-            text = inspection.id,
-            fontWeight = FontWeight.Medium
-        )
-        TableCell(
-            text = "${inspection.site}\n${inspection.location}",
-            weight = 1.5f
-        )
-        TableCell(text = inspection.officer)
-        TableCell(text = inspection.date)
-        TableScoreCell(score = inspection.score)
-        TableStatusCell(
-            status = inspection.status.label,
-            statusColor = inspection.status.color
-        )
+private fun InspectionsTable(
+    inspections: List<Inspection>,
+    onInspectionClick: (Inspection) -> Unit
+) {
+    DataTable(
+        columns = listOf("ID", "Title", "Type", "Status", "Assigned To", "Date")
+    ) {
+        inspections.forEach { inspection ->
+            InspectionRow(
+                inspection = inspection,
+                onClick = { onInspectionClick(inspection) }
+            )
+        }
     }
 }
 
 @Composable
-private fun rememberInspectionsData(): List<Inspection> {
-    return listOf(
-        Inspection(
-            id = "INS-001",
-            site = "Shaft A",
-            location = "Level 3",
-            officer = "Mike Johnson",
-            date = "2026-02-08",
-            score = "94%",
-            status = InspectionStatus.COMPLETED
-        ),
-        Inspection(
-            id = "INS-002",
-            site = "Processing Plant",
-            location = "Main Facility",
-            officer = "Sarah Williams",
-            date = "2026-02-08",
-            score = null,
-            status = InspectionStatus.IN_PROGRESS
-        ),
-        Inspection(
-            id = "INS-003",
-            site = "Tailings Dam B",
-            location = "Dam Perimeter",
-            officer = "Carlos Rivera",
-            date = "2026-02-07",
-            score = "78%",
-            status = InspectionStatus.COMPLETED
-        ),
-        Inspection(
-            id = "INS-004",
-            site = "Underground Tunnel",
-            location = "Tunnel 5",
-            officer = "Aisha Patel",
-            date = "2026-02-07",
-            score = "88%",
-            status = InspectionStatus.COMPLETED
-        ),
-        Inspection(
-            id = "INS-005",
-            site = "Equipment Yard",
-            location = "North Section",
-            officer = "Tom Baker",
-            date = "2026-02-06",
-            score = "52%",
-            status = InspectionStatus.FLAGGED
-        ),
-        Inspection(
-            id = "INS-006",
-            site = "Ventilation System",
-            location = "Main Shaft",
-            officer = "Mike Johnson",
-            date = "2026-02-06",
-            score = "91%",
-            status = InspectionStatus.COMPLETED
+private fun InspectionRow(
+    inspection: Inspection,
+    onClick: () -> Unit
+) {
+    TableRow(
+        onClick = onClick
+    ) {
+        TableCell(
+            text = "INS-${inspection.id.toString().padStart(3, '0')}",
+            fontWeight = FontWeight.Medium
         )
-    )
+        TableCell(
+            text = inspection.title,
+            weight = 1.5f
+        )
+        TableCell(
+            text = inspection.targetType.name
+        )
+        TableStatusCell(
+            status = inspection.status.name,
+            statusColor = when (inspection.status) {
+                InspectionStatus.COMPLETED -> MiningSafetyColors.Success
+                InspectionStatus.IN_PROGRESS -> MiningSafetyColors.Primary
+                InspectionStatus.PENDING -> MiningSafetyColors.Warning
+                InspectionStatus.CANCELLED -> MiningSafetyColors.Error
+            }
+        )
+        TableCell(
+            text = inspection.assignedOfficerId?.toString() ?: "Unassigned"
+        )
+        TableCell(
+            text = inspection.createdAt?.take(10) ?: "-"
+        )
+    }
 }

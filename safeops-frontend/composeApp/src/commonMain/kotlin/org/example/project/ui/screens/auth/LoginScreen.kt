@@ -7,13 +7,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,8 +25,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import org.example.project.di.ServiceLocator
+import org.example.project.presentation.viewmodel.LoginViewModel
 import org.example.project.ui.components.AuthDivider
 import org.example.project.ui.components.AuthFooterLink
 import org.example.project.ui.components.AuthPrimaryButton
@@ -38,60 +40,24 @@ import org.example.project.ui.theme.MiningSafetyColors
 /**
  * Login screen with responsive layout for both mobile and desktop
  *
+ * @param viewModel LoginViewModel instance
  * @param onLoginSuccess Callback when login succeeds
  * @param onNavigateToRegister Callback to navigate to registration
  */
 @Composable
 fun LoginScreen(
+    viewModel: LoginViewModel = remember { ServiceLocator.provideLoginViewModel() },
     onLoginSuccess: () -> Unit = {},
     onNavigateToRegister: () -> Unit = {}
 ) {
-    val scope = rememberCoroutineScope()
-    
-    // Form state
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+    val uiState by viewModel.uiState.collectAsState()
     var isPasswordVisible by remember { mutableStateOf(false) }
-    var isLoading by remember { mutableStateOf(false) }
     
-    // Error states
-    var emailError by remember { mutableStateOf<String?>(null) }
-    var passwordError by remember { mutableStateOf<String?>(null) }
-    
-    fun validateForm(): Boolean {
-        var isValid = true
-        
-        if (email.isBlank()) {
-            emailError = "Email is required"
-            isValid = false
-        } else if (!email.contains("@")) {
-            emailError = "Invalid email format"
-            isValid = false
-        } else {
-            emailError = null
-        }
-        
-        if (password.isBlank()) {
-            passwordError = "Password is required"
-            isValid = false
-        } else if (password.length < 6) {
-            passwordError = "Password must be at least 6 characters"
-            isValid = false
-        } else {
-            passwordError = null
-        }
-        
-        return isValid
-    }
-    
-    fun performLogin() {
-        if (!validateForm()) return
-        
-        isLoading = true
-        scope.launch {
-            delay(1500)
-            isLoading = false
+    // Handle successful login
+    LaunchedEffect(uiState.isSuccess) {
+        if (uiState.isSuccess) {
             onLoginSuccess()
+            viewModel.resetState()
         }
     }
     
@@ -104,35 +70,47 @@ fun LoginScreen(
         val isMedium = maxWidth >= 600.dp && maxWidth < 840.dp  // Tablet
         val isExpanded = maxWidth >= 840.dp  // Desktop
         
+        // Determine which errors to show
+        val hasEmailFormatError = uiState.email.isNotBlank() && !uiState.email.contains("@")
+        val hasPasswordLengthError = uiState.password.isNotBlank() && uiState.password.length < 6
+        
+        // API error (general error not related to field validation)
+        val apiError = uiState.error?.takeIf { 
+            !hasEmailFormatError && !hasPasswordLengthError && 
+            uiState.email.isNotBlank() && uiState.password.isNotBlank() 
+        }
+        
         if (isCompact) {
             // Mobile layout - single column, centered
             LoginMobileLayout(
-                email = email,
-                onEmailChange = { email = it; emailError = null },
-                password = password,
-                onPasswordChange = { password = it; passwordError = null },
+                email = uiState.email,
+                onEmailChange = viewModel::onEmailChange,
+                password = uiState.password,
+                onPasswordChange = viewModel::onPasswordChange,
                 isPasswordVisible = isPasswordVisible,
                 onTogglePasswordVisibility = { isPasswordVisible = !isPasswordVisible },
-                emailError = emailError,
-                passwordError = passwordError,
-                isLoading = isLoading,
-                onLogin = { performLogin() },
+                emailError = uiState.error.takeIf { uiState.email.isBlank() || hasEmailFormatError },
+                passwordError = uiState.error.takeIf { uiState.password.isBlank() || hasPasswordLengthError },
+                apiError = apiError,
+                isLoading = uiState.isLoading,
+                onLogin = viewModel::login,
                 onForgotPassword = { },
                 onNavigateToRegister = onNavigateToRegister
             )
         } else {
             // Desktop/Tablet layout - split screen
             LoginDesktopLayout(
-                email = email,
-                onEmailChange = { email = it; emailError = null },
-                password = password,
-                onPasswordChange = { password = it; passwordError = null },
+                email = uiState.email,
+                onEmailChange = viewModel::onEmailChange,
+                password = uiState.password,
+                onPasswordChange = viewModel::onPasswordChange,
                 isPasswordVisible = isPasswordVisible,
                 onTogglePasswordVisibility = { isPasswordVisible = !isPasswordVisible },
-                emailError = emailError,
-                passwordError = passwordError,
-                isLoading = isLoading,
-                onLogin = { performLogin() },
+                emailError = uiState.error.takeIf { uiState.email.isBlank() || hasEmailFormatError },
+                passwordError = uiState.error.takeIf { uiState.password.isBlank() || hasPasswordLengthError },
+                apiError = apiError,
+                isLoading = uiState.isLoading,
+                onLogin = viewModel::login,
                 onForgotPassword = { },
                 onNavigateToRegister = onNavigateToRegister
             )
@@ -153,6 +131,7 @@ private fun LoginMobileLayout(
     onTogglePasswordVisibility: () -> Unit,
     emailError: String?,
     passwordError: String?,
+    apiError: String?,
     isLoading: Boolean,
     onLogin: () -> Unit,
     onForgotPassword: () -> Unit,
@@ -210,6 +189,7 @@ private fun LoginMobileLayout(
             onTogglePasswordVisibility = onTogglePasswordVisibility,
             emailError = emailError,
             passwordError = passwordError,
+            apiError = apiError,
             isLoading = isLoading,
             onLogin = onLogin,
             onForgotPassword = onForgotPassword,
@@ -234,6 +214,7 @@ private fun LoginDesktopLayout(
     onTogglePasswordVisibility: () -> Unit,
     emailError: String?,
     passwordError: String?,
+    apiError: String?,
     isLoading: Boolean,
     onLogin: () -> Unit,
     onForgotPassword: () -> Unit,
@@ -266,6 +247,7 @@ private fun LoginDesktopLayout(
                 onTogglePasswordVisibility = onTogglePasswordVisibility,
                 emailError = emailError,
                 passwordError = passwordError,
+                apiError = apiError,
                 isLoading = isLoading,
                 onLogin = onLogin,
                 onForgotPassword = onForgotPassword,
@@ -291,6 +273,7 @@ private fun LoginCard(
     onTogglePasswordVisibility: () -> Unit,
     emailError: String?,
     passwordError: String?,
+    apiError: String?,
     isLoading: Boolean,
     onLogin: () -> Unit,
     onForgotPassword: () -> Unit,
@@ -324,6 +307,35 @@ private fun LoginCard(
             )
             
             Spacer(modifier = Modifier.height(24.dp))
+            
+            // API Error Banner (shown when login fails)
+            if (apiError != null) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MiningSafetyColors.Error.copy(alpha = 0.1f)
+                    ),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            text = "⚠️",
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                        Text(
+                            text = apiError,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MiningSafetyColors.Error,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+            }
             
             // Form fields
             SafeOpsTextField(
