@@ -8,6 +8,7 @@
 package com.zama.safeops.modules.shared.api
 
 import com.zama.safeops.modules.shared.constants.ErrorCodes
+import io.swagger.v3.oas.annotations.Hidden
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
 import org.springframework.web.servlet.resource.NoResourceFoundException
 
+@Hidden
 @RestControllerAdvice
 class GlobalExceptionHandler {
 

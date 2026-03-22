@@ -138,3 +138,7 @@ springdoc:
     enabled: false
   # Remove these properties to avoid schema resolution issues
   remove-broken-reference-definitions: true
+  # More lenient schema resolution
+  override-with-generic-response: false
+  # Skip types that can't be resolved
+  default-flat-param-object: true

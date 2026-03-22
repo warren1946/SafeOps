@@ -10,6 +10,7 @@ package com.zama.safeops.modules.core.api
 import com.zama.safeops.modules.core.domain.exceptions.CoreException
 import com.zama.safeops.modules.shared.api.ApiResponse
 import com.zama.safeops.modules.shared.constants.ErrorCodes
+import io.swagger.v3.oas.annotations.Hidden
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -17,6 +18,7 @@ import org.springframework.orm.ObjectOptimisticLockingFailureException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 
+@Hidden
 @RestControllerAdvice(basePackages = ["com.zama.safeops.modules.core"])
 class CoreExceptionHandler {
 
