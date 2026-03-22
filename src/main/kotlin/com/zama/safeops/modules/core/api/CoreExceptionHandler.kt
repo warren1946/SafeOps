@@ -21,12 +21,12 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 class CoreExceptionHandler {
 
     @ExceptionHandler(CoreException::class)
-    fun handleCoreException(ex: CoreException): ResponseEntity<ApiResponse<Nothing>> = ResponseEntity
+    fun handleCoreException(ex: CoreException): ResponseEntity<ApiResponse<Unit>> = ResponseEntity
         .status(ex.httpStatus)
         .body(ApiResponse.error(ex.code, ex.userMessage))
 
     @ExceptionHandler(ObjectOptimisticLockingFailureException::class)
-    fun handleOptimisticLock(ex: ObjectOptimisticLockingFailureException): ResponseEntity<ApiResponse<Nothing>> = ResponseEntity
+    fun handleOptimisticLock(ex: ObjectOptimisticLockingFailureException): ResponseEntity<ApiResponse<Unit>> = ResponseEntity
         .status(HttpStatus.CONFLICT)
         .body(
             ApiResponse.error(
@@ -36,7 +36,7 @@ class CoreExceptionHandler {
         )
 
     @ExceptionHandler(DataIntegrityViolationException::class)
-    fun handleDataIntegrity(ex: DataIntegrityViolationException): ResponseEntity<ApiResponse<Nothing>> {
+    fun handleDataIntegrity(ex: DataIntegrityViolationException): ResponseEntity<ApiResponse<Unit>> {
 
         val constraint = extractConstraintName(ex)
         val message = when (constraint) {

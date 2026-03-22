@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 class SafetyExceptionHandler {
 
     @ExceptionHandler(SafetyException::class)
-    fun handleSafetyException(ex: SafetyException): ResponseEntity<ApiResponse<Nothing>> = ResponseEntity
+    fun handleSafetyException(ex: SafetyException): ResponseEntity<ApiResponse<Unit>> = ResponseEntity
         .status(ex.httpStatus)
         .body(
             ApiResponse.error(

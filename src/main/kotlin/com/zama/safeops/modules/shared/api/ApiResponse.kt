@@ -34,10 +34,11 @@ data class ApiResponse<T>(
             code: String,
             message: String,
             errors: Map<String, String>? = null
-        ): ApiResponse<Nothing> =
+        ): ApiResponse<Unit> =
             ApiResponse(
                 success = false,
                 message = message,
+                data = null,
                 code = code,
                 errors = errors
             )

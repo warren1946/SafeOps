@@ -133,3 +133,8 @@ springdoc:
   default-produces-media-type: application/json
   default-consumes-media-type: application/json
   writer-with-default-pretty-printer: true
+  # Disable the customizer bean to avoid conflicts
+  customizer:
+    enabled: false
+  # Remove these properties to avoid schema resolution issues
+  remove-broken-reference-definitions: true

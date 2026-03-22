@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 class InspectionExceptionHandler {
 
     @ExceptionHandler(InspectionException::class)
-    fun handleInspectionException(ex: InspectionException): ResponseEntity<ApiResponse<Nothing>> =
+    fun handleInspectionException(ex: InspectionException): ResponseEntity<ApiResponse<Unit>> =
         ResponseEntity
             .status(ex.httpStatus)
             .body(

@@ -52,6 +52,9 @@ fun <T> org.example.project.data.remote.service.ApiResult<T>.toDomainResult(): R
     is org.example.project.data.remote.service.ApiResult.Success -> Result.Success(data)
     is org.example.project.data.remote.service.ApiResult.Error -> Result.Error(
         exception.message ?: "Unknown error",
-        exception.statusCode
+        when (exception) {
+            is org.example.project.data.remote.service.ApiException.ServerError -> exception.code
+            else -> null
+        }
     )
 }

@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 class HazardExceptionHandler {
 
     @ExceptionHandler(HazardException::class)
-    fun handleHazardException(ex: HazardException): ResponseEntity<ApiResponse<Nothing>> = ResponseEntity
+    fun handleHazardException(ex: HazardException): ResponseEntity<ApiResponse<Unit>> = ResponseEntity
         .status(ex.httpStatus)
         .body(
             ApiResponse.error(

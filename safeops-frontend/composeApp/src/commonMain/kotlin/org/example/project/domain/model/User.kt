@@ -7,9 +7,15 @@ package org.example.project.domain.model
 data class User(
     val id: Long,
     val email: String,
-    val roles: List<UserRole>,
+    val firstName: String? = null,
+    val lastName: String? = null,
+    val phone: String? = null,
+    val avatarUrl: String? = null,
+    val roles: List<UserRole> = emptyList(),
+    val role: String? = null, // For backward compatibility
     val tenantId: Long? = null,
-    val isActive: Boolean = true
+    val isActive: Boolean = true,
+    val emailVerified: Boolean = false
 )
 
 enum class UserRole {

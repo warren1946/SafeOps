@@ -6,11 +6,18 @@ package org.example.project.domain.model
 data class Inspection(
     val id: Long,
     val title: String,
+    val description: String? = null,
+    val location: String? = null,
     val targetType: InspectionTargetType,
     val targetId: Long,
     val templateId: Long? = null,
     val assignedOfficerId: Long? = null,
     val status: InspectionStatus = InspectionStatus.PENDING,
+    val type: String? = null,
+    val scheduledDate: String? = null,
+    val completedDate: String? = null,
+    val inspectorId: String? = null,
+    val inspectorName: String? = null,
     val createdAt: String? = null,
     val completedAt: String? = null
 )

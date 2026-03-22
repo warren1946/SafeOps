@@ -1,6 +1,5 @@
 package org.example.project.domain.usecase
 
-import kotlinx.coroutines.flow.Flow
 import org.example.project.domain.model.Hazard
 import org.example.project.domain.model.HazardSeverity
 import org.example.project.domain.model.HazardStatus
@@ -15,15 +14,15 @@ class GetHazardsUseCase(
 ) {
     suspend operator fun invoke(
         status: HazardStatus? = null,
-        severity: HazardSeverity? = null
+        severity: HazardSeverity? = null,
+        page: Int = 1,
+        pageSize: Int = 20
     ): Result<List<Hazard>> {
-        return hazardRepository.getHazards(status, severity)
-    }
-    
-    fun asFlow(
-        status: HazardStatus? = null,
-        severity: HazardSeverity? = null
-    ): Flow<Result<List<Hazard>>> {
-        return hazardRepository.getHazardsFlow(status, severity)
+        return hazardRepository.getHazards(
+            status = status?.name,
+            severity = severity?.name,
+            page = page,
+            pageSize = pageSize
+        )
     }
 }

@@ -24,7 +24,7 @@ class GlobalExceptionHandler {
 
     // JSON parsing / malformed body / null for non-nullable Kotlin fields
     @ExceptionHandler(HttpMessageNotReadableException::class)
-    fun handleUnreadableJson(ex: HttpMessageNotReadableException): ResponseEntity<ApiResponse<Nothing>> {
+    fun handleUnreadableJson(ex: HttpMessageNotReadableException): ResponseEntity<ApiResponse<Unit>> {
 
         val message = when {
             ex.message?.contains("missing") == true ->
@@ -48,7 +48,7 @@ class GlobalExceptionHandler {
 
     // Missing query or form parameters
     @ExceptionHandler(MissingServletRequestParameterException::class)
-    fun handleMissingParam(ex: MissingServletRequestParameterException): ResponseEntity<ApiResponse<Nothing>> =
+    fun handleMissingParam(ex: MissingServletRequestParameterException): ResponseEntity<ApiResponse<Unit>> =
         ResponseEntity
             .status(HttpStatus.BAD_REQUEST)
             .body(
@@ -60,7 +60,7 @@ class GlobalExceptionHandler {
 
     // Wrong type for path variables or query params
     @ExceptionHandler(MethodArgumentTypeMismatchException::class)
-    fun handleTypeMismatch(ex: MethodArgumentTypeMismatchException): ResponseEntity<ApiResponse<Nothing>> =
+    fun handleTypeMismatch(ex: MethodArgumentTypeMismatchException): ResponseEntity<ApiResponse<Unit>> =
         ResponseEntity
             .status(HttpStatus.BAD_REQUEST)
             .body(
@@ -72,7 +72,7 @@ class GlobalExceptionHandler {
 
     // Unsupported content type (e.g., sending XML instead of JSON)
     @ExceptionHandler(HttpMediaTypeNotSupportedException::class)
-    fun handleUnsupportedMediaType(ex: HttpMediaTypeNotSupportedException): ResponseEntity<ApiResponse<Nothing>> =
+    fun handleUnsupportedMediaType(ex: HttpMediaTypeNotSupportedException): ResponseEntity<ApiResponse<Unit>> =
         ResponseEntity
             .status(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
             .body(
@@ -84,7 +84,7 @@ class GlobalExceptionHandler {
 
     // Bean validation errors (@Valid)
     @ExceptionHandler(MethodArgumentNotValidException::class)
-    fun handleValidation(ex: MethodArgumentNotValidException): ResponseEntity<ApiResponse<Nothing>> {
+    fun handleValidation(ex: MethodArgumentNotValidException): ResponseEntity<ApiResponse<Unit>> {
         val errors = ex.bindingResult.fieldErrors.associate {
             it.field to (it.defaultMessage ?: "Invalid value")
         }
@@ -102,7 +102,7 @@ class GlobalExceptionHandler {
 
     // Generic invalid input (thrown manually)
     @ExceptionHandler(IllegalArgumentException::class)
-    fun handleIllegalArgument(ex: IllegalArgumentException): ResponseEntity<ApiResponse<Nothing>> =
+    fun handleIllegalArgument(ex: IllegalArgumentException): ResponseEntity<ApiResponse<Unit>> =
         ResponseEntity
             .status(HttpStatus.BAD_REQUEST)
             .body(
@@ -114,7 +114,7 @@ class GlobalExceptionHandler {
 
     // Catch-all fallback
     @ExceptionHandler(Exception::class)
-    fun handleGeneric(ex: Exception): ResponseEntity<ApiResponse<Nothing>> {
+    fun handleGeneric(ex: Exception): ResponseEntity<ApiResponse<Unit>> {
         ex.printStackTrace()
 
         return ResponseEntity
@@ -129,7 +129,7 @@ class GlobalExceptionHandler {
 
     // Catch no resource found
     @ExceptionHandler(NoResourceFoundException::class)
-    fun handleNoResourceFound(ex: NoResourceFoundException): ResponseEntity<ApiResponse<Nothing>> = ResponseEntity
+    fun handleNoResourceFound(ex: NoResourceFoundException): ResponseEntity<ApiResponse<Unit>> = ResponseEntity
         .status(HttpStatus.NOT_FOUND)
         .body(
             ApiResponse.error(

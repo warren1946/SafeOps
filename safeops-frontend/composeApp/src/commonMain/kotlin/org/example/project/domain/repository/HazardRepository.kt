@@ -1,6 +1,5 @@
 package org.example.project.domain.repository
 
-import kotlinx.coroutines.flow.Flow
 import org.example.project.domain.model.Hazard
 import org.example.project.domain.model.HazardSeverity
 import org.example.project.domain.model.HazardStatus
@@ -14,17 +13,16 @@ interface HazardRepository {
      * Get all hazards with optional filters
      */
     suspend fun getHazards(
-        status: HazardStatus? = null,
-        severity: HazardSeverity? = null
+        status: String? = null,
+        severity: String? = null,
+        page: Int = 1,
+        pageSize: Int = 20
     ): Result<List<Hazard>>
     
     /**
-     * Get hazards as Flow for reactive updates
+     * Get hazard by ID
      */
-    fun getHazardsFlow(
-        status: HazardStatus? = null,
-        severity: HazardSeverity? = null
-    ): Flow<Result<List<Hazard>>>
+    suspend fun getHazardById(id: Long): Result<Hazard>
     
     /**
      * Create a new hazard
@@ -32,19 +30,24 @@ interface HazardRepository {
     suspend fun createHazard(
         title: String,
         description: String? = null,
-        severity: HazardSeverity = HazardSeverity.MEDIUM,
         location: String? = null,
-        targetType: String? = null,
-        targetId: Long? = null
+        severity: HazardSeverity = HazardSeverity.MEDIUM
     ): Result<Hazard>
     
     /**
-     * Get critical hazards count
+     * Update an existing hazard
      */
-    suspend fun getCriticalHazardsCount(): Result<Int>
+    suspend fun updateHazard(
+        id: Long,
+        title: String? = null,
+        description: String? = null,
+        location: String? = null,
+        severity: HazardSeverity? = null,
+        status: HazardStatus? = null
+    ): Result<Hazard>
     
     /**
-     * Get open hazards count
+     * Delete a hazard
      */
-    suspend fun getOpenHazardsCount(): Result<Int>
+    suspend fun deleteHazard(id: Long): Result<Unit>
 }
