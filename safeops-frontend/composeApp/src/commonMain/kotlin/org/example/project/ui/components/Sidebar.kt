@@ -15,6 +15,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import org.example.project.ui.screens.dashboard.DashboardTab
 import org.example.project.ui.theme.MiningSafetyColors
+import org.example.project.ui.components.LogoVariant
+import org.example.project.ui.components.SafeOpsLogo
 
 /**
  * Data class representing a sidebar navigation item
@@ -93,8 +95,14 @@ fun Sidebar(
 @Composable
 private fun SidebarLogo() {
     Column(
-        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        SafeOpsLogo(
+            variant = LogoVariant.WHITE,
+            size = 80
+        )
+        Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = "SafeOps",
             style = MaterialTheme.typography.titleLarge,

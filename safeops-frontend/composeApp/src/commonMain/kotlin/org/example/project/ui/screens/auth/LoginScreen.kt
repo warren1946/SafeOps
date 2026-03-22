@@ -29,6 +29,8 @@ import org.example.project.ui.components.AuthDivider
 import org.example.project.ui.components.AuthFooterLink
 import org.example.project.ui.components.AuthPrimaryButton
 import org.example.project.ui.components.AuthTextLink
+import org.example.project.ui.components.LogoVariant
+import org.example.project.ui.components.SafeOpsLogo
 import org.example.project.ui.components.SafeOpsPasswordField
 import org.example.project.ui.components.SafeOpsTextField
 import org.example.project.ui.theme.MiningSafetyColors
@@ -402,9 +404,9 @@ private fun LoginBrandingPanel(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.padding(48.dp)
         ) {
-            Text(
-                text = "⚡",
-                style = MaterialTheme.typography.displayLarge
+            SafeOpsLogo(
+                variant = LogoVariant.WHITE,
+                size = 120
             )
             
             Spacer(modifier = Modifier.height(24.dp))

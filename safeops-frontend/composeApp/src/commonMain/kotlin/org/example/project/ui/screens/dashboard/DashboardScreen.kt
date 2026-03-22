@@ -11,6 +11,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import org.example.project.ui.components.*
+import org.example.project.ui.components.LogoVariant
+import org.example.project.ui.components.SafeOpsLogo
 import org.example.project.ui.theme.MiningSafetyColors
 
 /**
@@ -170,9 +172,9 @@ private fun DashboardTopBarMobile(
             Row(
                 verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
             ) {
-                Text(
-                    text = "⚡",
-                    style = MaterialTheme.typography.titleLarge
+                SafeOpsLogo(
+                    variant = LogoVariant.DARK,
+                    size = 32
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
@@ -288,56 +290,35 @@ private fun DashboardTabContent(
 
 @Composable
 private fun InspectionsTab() {
-    ComingSoonPlaceholder(
-        featureName = "Inspections",
-        description = "View and manage all safety inspections"
-    )
+    InspectionsScreen()
 }
 
 @Composable
 private fun HazardsTab() {
-    ComingSoonPlaceholder(
-        featureName = "Hazard Reports",
-        description = "Track and manage identified hazards"
-    )
+    HazardsScreen()
 }
 
 @Composable
 private fun ReportsTab() {
-    ComingSoonPlaceholder(
-        featureName = "Reports",
-        description = "Analytics and compliance reporting"
-    )
+    ReportsScreen()
 }
 
 @Composable
 private fun TemplatesTab() {
-    ComingSoonPlaceholder(
-        featureName = "Inspection Templates",
-        description = "Create and manage inspection form templates"
-    )
+    TemplatesScreen()
 }
 
 @Composable
 private fun WhatsAppTab() {
-    ComingSoonPlaceholder(
-        featureName = "WhatsApp Integration",
-        description = "Monitor WhatsApp inspection workflows"
-    )
+    WhatsAppScreen()
 }
 
 @Composable
 private fun UsersTab() {
-    ComingSoonPlaceholder(
-        featureName = "Users",
-        description = "Manage team members and roles"
-    )
+    UsersScreen()
 }
 
 @Composable
 private fun SettingsTab() {
-    ComingSoonPlaceholder(
-        featureName = "Settings",
-        description = "Configure your SafeOps platform"
-    )
+    SettingsScreen()
 }
