@@ -43,15 +43,15 @@ kotlin {
             implementation(libs.androidx.activity.compose)
             implementation(libs.ktor.client.okhttp)
         }
-        
+
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
         }
-        
+
         jsMain.dependencies {
             implementation(libs.ktor.client.js)
         }
-        
+
         wasmJsMain.dependencies {
             implementation(libs.ktor.client.js)
         }
@@ -64,7 +64,7 @@ kotlin {
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
-            
+
             // Ktor client
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.content.negotiation)
@@ -88,6 +88,17 @@ android {
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
         versionName = "1.0"
+
+        // BuildConfig field for API base URL
+        // Override with: ./gradlew assembleRelease -Psafeops.api.url=https://your-api.com
+        val apiBaseUrl = project.findProperty("safeops.api.url") as? String
+            ?: System.getenv("SAFEOPS_API_URL")
+            ?: "http://localhost:8080"
+        buildConfigField("String", "API_BASE_URL", "\"$apiBaseUrl\"")
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
     packaging {
         resources {

@@ -50,6 +50,10 @@ out/
 *.p12
 *.pfx
 
+### Generated API Documentation ###
+api_docs.json
+api_docs_formatted.json
+
 ### Logs ###
 *.log
 logs/

@@ -50,10 +50,21 @@ server:
   port: 8080
   servlet:
     context-path: /
+    # Request size limits
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+      enabled: true
+      file-size-threshold: 2KB
   compression:
     enabled: true
     mime-types: application/json,application/xml,text/html,text/plain
     min-response-size: 1024
+  
+  # Tomcat specific settings
+  tomcat:
+    max-http-form-post-size: 10MB
+    max-swallow-size: 10MB
 
 # Management & Monitoring
 management:
@@ -87,6 +98,20 @@ app:
     refresh-secret: ${APP_JWT_REFRESH_SECRET}
     access-expiration-ms: 900000        # 15 minutes
     refresh-expiration-ms: 1209600000   # 14 days
+  
+  api:
+    server-url: ${APP_API_SERVER_URL:}  # Optional: Configure for Swagger/OpenAPI
+    server-description: ${APP_API_SERVER_DESCRIPTION:Production Server}
+  
+  security:
+    validation:
+      max-request-size: 10485760        # 10MB in bytes
+      max-string-length: 10000          # Maximum string field length
+      max-collection-size: 1000         # Maximum array/collection size
+      max-nesting-depth: 20             # Maximum JSON nesting depth
+      enable-xss-sanitization: true     # Enable XSS protection
+      enable-sql-injection-check: true  # Enable SQL injection detection
+      enable-command-injection-check: true  # Enable command injection detection
 
   audit:
     enabled: true

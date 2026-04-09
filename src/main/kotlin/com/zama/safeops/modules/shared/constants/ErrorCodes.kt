@@ -14,6 +14,7 @@ object ErrorCodes {
 
     const val VALIDATION = "VALIDATION_001"
     const val INVALID_INPUT = "VALIDATION_002"
+    const val PAYLOAD_TOO_LARGE = "VALIDATION_003"
 
     const val AUTH_USER_EXISTS = "AUTH_001"
     const val AUTH_INVALID_CREDENTIALS = "AUTH_002"

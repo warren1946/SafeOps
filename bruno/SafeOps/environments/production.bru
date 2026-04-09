@@ -1,17 +1,17 @@
 vars {
-  baseUrl: https://safeops-1.onrender.com
+  baseUrl: https://your-production-domain.com
   tenantId: 1
   tenantSlug: default
-  validEmail: admin@test.com
-  validPassword: password123
-  superAdminEmail: superadmin@test.com
-  superAdminPassword: password123
-  adminEmail: admin@test.com
-  adminPassword: password123
-  supervisorEmail: supervisor@test.com
-  supervisorPassword: password123
-  officerEmail: officer@test.com
-  officerPassword: password123
-  viewerEmail: viewer@test.com
-  viewerPassword: password123
+  validEmail: admin@example.com
+  validPassword: {{process.env.TEST_USER_PASSWORD}}
+  superAdminEmail: superadmin@example.com
+  superAdminPassword: {{process.env.TEST_SUPERADMIN_PASSWORD}}
+  adminEmail: admin@example.com
+  adminPassword: {{process.env.TEST_ADMIN_PASSWORD}}
+  supervisorEmail: supervisor@example.com
+  supervisorPassword: {{process.env.TEST_SUPERVISOR_PASSWORD}}
+  officerEmail: officer@example.com
+  officerPassword: {{process.env.TEST_OFFICER_PASSWORD}}
+  viewerEmail: viewer@example.com
+  viewerPassword: {{process.env.TEST_VIEWER_PASSWORD}}
 }
