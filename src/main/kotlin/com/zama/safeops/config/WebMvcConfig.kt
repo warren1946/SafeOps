@@ -22,9 +22,9 @@ class WebMvcConfig(
 ) : WebMvcConfigurer {
 
     override fun addInterceptors(registry: InterceptorRegistry) {
-        // Rate limiting should be first
+        // Rate limiting should be first - applies to all endpoints including /health
         registry.addInterceptor(rateLimitingInterceptor)
-            .addPathPatterns("/api/**")
+            .addPathPatterns("/api/**", "/health")
             .excludePathPatterns("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**", "/webjars/**")
             .order(0)
 
@@ -45,7 +45,7 @@ class WebMvcConfig(
             .allowedOrigins("*")  // Configure appropriately for production
             .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
             .allowedHeaders("*")
-            .exposedHeaders("X-Rate-Limit-Remaining", "X-Rate-Limit-Retry-After-Millis")
+            .exposedHeaders("X-Rate-Limit-Limit", "X-Rate-Limit-Remaining", "X-Rate-Limit-Reset", "X-Rate-Limit-Retry-After")
             .maxAge(3600)
     }
 }

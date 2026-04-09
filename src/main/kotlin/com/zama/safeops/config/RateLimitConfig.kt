@@ -14,22 +14,23 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
 
 /**
- * Simple rate limiting configuration.
+ * Rate limiting configuration.
  *
  * Limits:
- * - Authentication endpoints: 10 requests per minute (prevent brute force)
+ * - Authentication endpoints: 5 requests per 15 minutes (prevent brute force)
  * - General API: 100 requests per minute per user
  * - Heavy operations (AI analysis, reports): 10 requests per minute
  * - Public endpoints: 60 requests per minute per IP
  */
 class RateLimitConfig {
     companion object {
-        const val AUTH_LIMIT = 10
+        const val AUTH_LIMIT = 5
         const val GENERAL_LIMIT = 100
         const val HEAVY_LIMIT = 10
         const val PUBLIC_LIMIT = 60
 
         const val WINDOW_SECONDS = 60L
+        const val AUTH_WINDOW_SECONDS = 900L // 15 minutes
     }
 }
 
@@ -65,13 +66,14 @@ class RateLimitingInterceptor : HandlerInterceptor {
         val clientId = extractClientId(request)
         val bucketType = determineBucketType(request)
         val limit = getLimitForType(bucketType)
+        val windowSeconds = getWindowForType(bucketType)
         val bucketKey = "$clientId:$bucketType"
 
         // Get or create bucket
         var bucket = buckets[bucketKey]
 
         // Check if bucket is expired and recreate if needed
-        if (bucket == null || bucket.isExpired(RateLimitConfig.WINDOW_SECONDS)) {
+        if (bucket == null || bucket.isExpired(windowSeconds)) {
             bucket = RateLimitBucket()
             buckets[bucketKey] = bucket
         }
@@ -83,13 +85,13 @@ class RateLimitingInterceptor : HandlerInterceptor {
             bucket.count.incrementAndGet()
             response.addHeader("X-Rate-Limit-Limit", limit.toString())
             response.addHeader("X-Rate-Limit-Remaining", (remaining - 1).toString())
-            response.addHeader("X-Rate-Limit-Reset", (bucket.windowStart + RateLimitConfig.WINDOW_SECONDS).toString())
+            response.addHeader("X-Rate-Limit-Reset", (bucket.windowStart + windowSeconds).toString())
             true
         } else {
             response.status = 429 // Too Many Requests
             response.addHeader("X-Rate-Limit-Limit", limit.toString())
             response.addHeader("X-Rate-Limit-Remaining", "0")
-            response.addHeader("X-Rate-Limit-Retry-After", RateLimitConfig.WINDOW_SECONDS.toString())
+            response.addHeader("X-Rate-Limit-Retry-After", windowSeconds.toString())
             response.contentType = "application/json"
             response.writer.write(
                 """{"success":false,"error":{"code":"RATE_LIMIT_EXCEEDED","message":"Too many requests. Please try again later."},"timestamp":"${Instant.now()}"}"""
@@ -128,6 +130,13 @@ class RateLimitingInterceptor : HandlerInterceptor {
             BucketType.HEAVY -> RateLimitConfig.HEAVY_LIMIT
             BucketType.PUBLIC -> RateLimitConfig.PUBLIC_LIMIT
             BucketType.GENERAL -> RateLimitConfig.GENERAL_LIMIT
+        }
+    }
+
+    private fun getWindowForType(type: BucketType): Long {
+        return when (type) {
+            BucketType.AUTH -> RateLimitConfig.AUTH_WINDOW_SECONDS
+            else -> RateLimitConfig.WINDOW_SECONDS
         }
     }
 
